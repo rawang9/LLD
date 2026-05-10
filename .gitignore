@@ -1,0 +1,6 @@
+# Java bytecode (e.g. day1_strategy_pattern/strategy/MountainFly.class)
+*.class
+
+# Editor / OS
+.vscode/
+.DS_Store
