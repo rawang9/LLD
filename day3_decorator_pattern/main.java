@@ -1,9 +1,9 @@
-package day3_decorator;
+package day3_decorator_pattern;
 
-import day3_decorator.beverage_base.Beverage;
-import day3_decorator.beverage_base.Cappuccino;
-import day3_decorator.condiment_decorator.ChocolateDecorator;
-import day3_decorator.condiment_decorator.MilkDecorator;
+import day3_decorator_pattern.beverage_base.Beverage;
+import day3_decorator_pattern.beverage_base.Cappuccino;
+import day3_decorator_pattern.condiment_decorator.ChocolateDecorator;
+import day3_decorator_pattern.condiment_decorator.MilkDecorator;
 
 /**
  * Decorator pattern (coffee shop): start with a concrete drink, then wrap it

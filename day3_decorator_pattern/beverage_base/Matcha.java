@@ -1,4 +1,4 @@
-package day3_decorator.beverage_base;
+package day3_decorator_pattern.beverage_base;
 
 /**
  * Concrete component: matcha with no add-ons yet.

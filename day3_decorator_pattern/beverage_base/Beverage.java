@@ -1,4 +1,4 @@
-package day3_decorator.beverage_base;
+package day3_decorator_pattern.beverage_base;
 
 /**
  * Component: every drink exposes a price and a description (plain or decorated).

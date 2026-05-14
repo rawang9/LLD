@@ -1,6 +1,6 @@
-package day3_decorator.condiment_decorator;
+package day3_decorator_pattern.condiment_decorator;
 
-import day3_decorator.beverage_base.Beverage;
+import day3_decorator_pattern.beverage_base.Beverage;
 
 /**
  * Concrete decorator: adds chocolate cost and label to the wrapped drink.
