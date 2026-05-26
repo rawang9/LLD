@@ -1,4 +1,4 @@
-package Day15FlightWeightPattern;
+package Day15FlyWeightPattern;
 
 /**
  * Context object: extrinsic state (x, y, velocity) varies per bullet.

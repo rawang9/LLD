@@ -1,4 +1,4 @@
-package Day15FlightWeightPattern;
+package Day15FlyWeightPattern;
 
 /**
  * Flyweight (intrinsic / shared state): same for all bullets of this type.

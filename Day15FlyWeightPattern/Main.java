@@ -1,4 +1,4 @@
-package Day15FlightWeightPattern;
+package Day15FlyWeightPattern;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package Day15FlightWeightPattern;
+package Day15FlyWeightPattern;
 
 import java.util.Collections;
 import java.util.HashMap;
