@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rate Limiter Playground — visualize five algorithms</title>
+  <link rel="stylesheet" href="./rate-limiter-playground.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="./rate-limiter-playground.html">Rate Limiter LLD</a>
+      <nav class="site-nav">
+        <a href="#fixed">Demos</a>
+        <a href="#hld">HLD</a>
+        <a href="#lld">LLD</a>
+        <a href="./rate-limiter-playground.html" aria-current="page">Playground</a>
+      </nav>
+    </div>
+  </header>
+
+  <article class="page">
+    <header class="hero">
+      <p class="eyebrow">Interactive demo</p>
+      <h1>Visualizing rate limit algorithms</h1>
+      <p class="hero-lede">
+        Five live demos — same logic as <code>src/ratelimit/strategy/</code>.
+        Lab clock at <code>2026-08-15T12:00:00Z</code> with 1× / 2× / 3× speed.
+        HLD and LLD diagrams are at the bottom.
+      </p>
+      <p class="hero-note">
+        Inspired by interactive write-ups like
+        <a href="https://smudge.ai/blog/ratelimit-algorithms" target="_blank" rel="noopener">smudge.ai on rate limits</a>
+        — one algorithm per section, prose + playground.
+      </p>
+    </header>
+
+    <nav class="toc" aria-label="On this page">
+      <span class="toc-label">Jump to</span>
+      <a href="#fixed">Fixed window</a>
+      <a href="#log">Sliding log</a>
+      <a href="#counter">Sliding counter</a>
+      <a href="#token">Token bucket</a>
+      <a href="#leaky">Leaky bucket</a>
+      <a href="#hld">HLD</a>
+      <a href="#lld">LLD</a>
+    </nav>
+
+    <aside class="clock-sticky">
+      <div class="clock-inner">
+        <div>
+          <div class="clock-label">Lab clock</div>
+          <div class="clock-time" id="lab-clock">--</div>
+        </div>
+        <p class="clock-hint">Refill, leak, and window rollover use this moving time.</p>
+        <div class="clock-speed" role="group" aria-label="Lab clock speed">
+          <span class="clock-speed-label">Speed</span>
+          <button type="button" class="btn btn-small speed-btn speed-btn-active" data-speed="1" aria-pressed="true">1×</button>
+          <button type="button" class="btn btn-small speed-btn" data-speed="2" aria-pressed="false">2×</button>
+          <button type="button" class="btn btn-small speed-btn" data-speed="3" aria-pressed="false">3×</button>
+        </div>
+        <button type="button" class="btn btn-small" id="btn-reset">Reset all</button>
+      </div>
+    </aside>
+
+    <div id="playground-sections"></div>
+
+    <section class="doc-section" id="hld">
+      <h2>High-level design (HLD)</h2>
+      <p class="doc-lede">Gateway rate limiting at scale — client identity, rules engine, Zookeeper config, Redis cluster, and microservices.</p>
+      <figure class="doc-figure doc-figure-hld">
+        <img src="./rate-limiter-hld.svg" width="920" height="620" alt="Rate limiter high-level design: client, API gateway, Zookeeper, Redis cluster, microservices" loading="lazy" />
+        <figcaption class="doc-caption">1M rps · 100M DAU · check &lt; 10ms · availability over consistency</figcaption>
+      </figure>
+    </section>
+
+    <section class="doc-section" id="lld">
+      <h2>Low-level design (LLD)</h2>
+      <p class="doc-lede">UML class diagram, request path, build order, and algorithm notes. Deep dive: <a href="./HOW_WE_BUILT_IT.md">HOW_WE_BUILT_IT.md</a>.</p>
+      <div id="lld-content" class="lld-doc" aria-live="polite">Loading LLD…</div>
+    </section>
+
+    <footer class="page-footer">
+      <p>
+        <a href="#fixed">Demos</a> &middot;
+        <a href="#hld">HLD</a> &middot;
+        <a href="#lld">LLD</a> &middot;
+        <a href="./HOW_WE_BUILT_IT.md">How we built it</a> &middot;
+        Java + Redis/Lua in <code>rateLimiter/</code>
+      </p>
+    </footer>
+  </article>
+
+  <script src="./rate-limiter-strategies.js"></script>
+  <script src="./rate-limiter-playground.js"></script>
+</body>
+</html>

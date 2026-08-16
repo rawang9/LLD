@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1088 740" width="1088" height="740">
+  <title>Rate Limiter LLD - UML class diagram</title>
+  <desc>Facade, Factory, Strategy, DI - matches src/ratelimit/ Java packages.</desc>
+  <rect width="1088" height="740" fill="#f6f5f2"/>
+  <defs>
+    <marker id="open" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0 0 L10 4 L0 8" fill="none" stroke="#57534e" stroke-width="1.2"/>
+    </marker>
+    <marker id="inherit" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto">
+      <path d="M0 0 L12 5 L0 10 Z" fill="#fff" stroke="#57534e" stroke-width="1.2"/>
+    </marker>
+    <marker id="compose" markerWidth="14" markerHeight="10" refX="1" refY="5" orient="auto">
+      <path d="M0 5 L7 0 L14 5 L7 10 Z" fill="#57534e"/>
+    </marker>
+  </defs>
+
+  <text x="28" y="28" font-family="ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="700" fill="#1c1917">Rate Limiter LLD - UML</text>
+  <text x="28" y="48" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" fill="#57534e">Facade + Factory + Strategy + DI. Dashed frames = patterns.</text>
+
+  <rect x="16" y="56" width="212" height="108" fill="none" stroke="#a8a29e" stroke-dasharray="7 5" rx="6"/>
+  <rect x="22" y="52" width="28" height="14" fill="#f6f5f2"/><text x="26" y="64" font-size="10" font-weight="700" fill="#78716c" font-family="system-ui">DI</text>
+  <rect x="254" y="56" width="296" height="178" fill="none" stroke="#a8a29e" stroke-dasharray="7 5" rx="6"/>
+  <rect x="264" y="52" width="58" height="14" fill="#f6f5f2"/><text x="268" y="64" font-size="10" font-weight="700" fill="#78716c" font-family="system-ui">FACADE</text>
+  <rect x="574" y="56" width="248" height="108" fill="none" stroke="#a8a29e" stroke-dasharray="7 5" rx="6"/>
+  <rect x="584" y="52" width="62" height="14" fill="#f6f5f2"/><text x="588" y="64" font-size="10" font-weight="700" fill="#78716c" font-family="system-ui">FACTORY</text>
+  <rect x="8" y="400" width="1072" height="280" fill="none" stroke="#a8a29e" stroke-dasharray="7 5" rx="6"/>
+  <rect x="18" y="392" width="78" height="14" fill="#f6f5f2"/><text x="22" y="404" font-size="10" font-weight="700" fill="#78716c" font-family="system-ui">STRATEGY</text>
+
+  <line x1="216" y1="111" x2="268" y2="104" stroke="#57534e" stroke-width="1.2" marker-end="url(#open)"/>
+  <text x="242" y="98" text-anchor="middle" font-size="10" fill="#78716c" font-family="system-ui">uses</text>
+  <line x1="536" y1="104" x2="588" y2="111" stroke="#57534e" stroke-width="1.2" marker-end="url(#open)"/>
+  <text x="562" y="96" text-anchor="middle" font-size="10" fill="#78716c" font-family="system-ui">uses</text>
+  <line x1="808" y1="111" x2="860" y2="104" stroke="#57534e" stroke-width="1.2" marker-end="url(#open)"/>
+  <text x="834" y="98" text-anchor="middle" font-size="10" fill="#78716c" font-family="system-ui">reads</text>
+  <line x1="970" y1="216" x2="970" y2="250" stroke="#57534e" stroke-width="1.2" marker-end="url(#open)"/>
+  <text x="988" y="238" font-size="10" fill="#78716c" font-family="system-ui">type</text>
+  <path d="M268 192 L260 192 L260 290 L248 290" fill="none" stroke="#57534e" stroke-width="1.2" marker-end="url(#open)"/>
+  <text x="256" y="180" text-anchor="end" font-size="10" fill="#78716c" font-family="system-ui">returns</text>
+  <path d="M402 242 L402 400 L550 400 L550 424" fill="none" stroke="#57534e" stroke-width="1.2" marker-start="url(#compose)" marker-end="url(#open)"/>
+  <text x="414" y="392" font-size="10" fill="#78716c" font-family="system-ui">1  byKey  *</text>
+  <path d="M698 160 L698 376 L660 376 L660 424" fill="none" stroke="#a8a29e" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#open)"/>
+  <text x="706" y="370" font-size="10" fill="#78716c" font-family="system-ui">&lt;&lt;create&gt;&gt;</text>
+  <path d="M114 576 L114 542 L550 542 L550 514" fill="none" stroke="#57534e" stroke-width="1.2" marker-end="url(#inherit)"/>
+  <path d="M326 576 L326 542 L550 542 L550 514" fill="none" stroke="#57534e" stroke-width="1.2" marker-end="url(#inherit)"/>
+  <path d="M542 576 L542 542 L550 542 L550 514" fill="none" stroke="#57534e" stroke-width="1.2" marker-end="url(#inherit)"/>
+  <path d="M758 576 L758 542 L550 542 L550 514" fill="none" stroke="#57534e" stroke-width="1.2" marker-end="url(#inherit)"/>
+  <path d="M970 576 L970 542 L550 542 L550 514" fill="none" stroke="#57534e" stroke-width="1.2" marker-end="url(#inherit)"/>
+
+  <g font-family="system-ui">
+    <rect x="28" y="68" width="188" height="86" fill="#fafaf9" stroke="#57534e" rx="2"/>
+    <rect x="28" y="68" width="188" height="42" fill="#e7e5e4"/>
+    <text x="122" y="83" text-anchor="middle" font-size="10" fill="#78716c">&lt;&lt;interface - DI&gt;&gt;</text>
+    <text x="122" y="100" text-anchor="middle" font-size="13" font-weight="700" font-style="italic">Clock</text>
+    <line x1="28" y1="110" x2="216" y2="110" stroke="#a8a29e"/>
+    <text x="38" y="130" font-size="11">+ now(): Instant</text>
+    <rect x="28" y="168" width="188" height="56" fill="#fafaf9" stroke="#a8a29e" stroke-dasharray="4 3" rx="2"/>
+    <text x="122" y="188" text-anchor="middle" font-size="10" fill="#78716c">&lt;&lt;implements&gt;&gt;</text>
+    <text x="122" y="206" text-anchor="middle" font-size="11">FakeClock | SystemClock</text>
+  </g>
+
+  <g font-family="system-ui">
+    <rect x="268" y="68" width="268" height="168" fill="#fafaf9" stroke="#1d4ed8" stroke-width="1.6" rx="2"/>
+    <rect x="268" y="68" width="268" height="42" fill="#dbeafe"/>
+    <text x="402" y="83" text-anchor="middle" font-size="10" fill="#1e40af">&lt;&lt;Facade + Strategy Context&gt;&gt;</text>
+    <text x="402" y="100" text-anchor="middle" font-size="13" font-weight="700">RateLimiter</text>
+    <line x1="268" y1="110" x2="536" y2="110" stroke="#a8a29e"/>
+    <text x="278" y="126" font-size="11">- byKey: Map&lt;String, Algo&gt;</text>
+    <text x="278" y="141" font-size="11">- clock: Clock</text>
+    <text x="278" y="156" font-size="11">- configOf: Function</text>
+    <line x1="268" y1="166" x2="536" y2="166" stroke="#a8a29e"/>
+    <text x="278" y="186" font-size="11">+ allow(key): Decision</text>
+  </g>
+
+  <g font-family="system-ui">
+    <rect x="588" y="68" width="220" height="90" fill="#fafaf9" stroke="#57534e" rx="2"/>
+    <rect x="588" y="68" width="220" height="42" fill="#e7e5e4"/>
+    <text x="698" y="83" text-anchor="middle" font-size="10" fill="#78716c">&lt;&lt;Factory&gt;&gt;</text>
+    <text x="698" y="100" text-anchor="middle" font-size="13" font-weight="700">RateLimitAlgoFactory</text>
+    <line x1="588" y1="110" x2="808" y2="110" stroke="#a8a29e"/>
+    <text x="598" y="130" font-size="11">+ create(config, clock): Algo</text>
+  </g>
+
+  <g font-family="system-ui">
+    <rect x="860" y="68" width="220" height="148" fill="#fafaf9" stroke="#57534e" rx="2"/>
+    <rect x="860" y="68" width="220" height="42" fill="#e7e5e4"/>
+    <text x="970" y="83" text-anchor="middle" font-size="10" fill="#78716c">&lt;&lt;record&gt;&gt;</text>
+    <text x="970" y="100" text-anchor="middle" font-size="13" font-weight="700">RateLimitConfig</text>
+    <line x1="860" y1="110" x2="1080" y2="110" stroke="#a8a29e"/>
+    <text x="870" y="126" font-size="11">+ limit: int</text>
+    <text x="870" y="141" font-size="11">+ window: Duration</text>
+    <text x="870" y="156" font-size="11">+ refillRate: int</text>
+    <text x="870" y="171" font-size="11">+ type: AlgoType</text>
+  </g>
+
+  <g font-family="system-ui">
+    <rect x="28" y="266" width="220" height="118" fill="#fafaf9" stroke="#57534e" rx="2"/>
+    <rect x="28" y="266" width="220" height="42" fill="#e7e5e4"/>
+    <text x="138" y="281" text-anchor="middle" font-size="10" fill="#78716c">&lt;&lt;record&gt;&gt;</text>
+    <text x="138" y="298" text-anchor="middle" font-size="13" font-weight="700">RateLimitDecision</text>
+    <line x1="28" y1="308" x2="248" y2="308" stroke="#a8a29e"/>
+    <text x="38" y="324" font-size="11">+ allowed: boolean</text>
+    <text x="38" y="339" font-size="11">+ remaining: int</text>
+    <text x="38" y="354" font-size="11">+ retryAt: Instant</text>
+  </g>
+
+  <g font-family="system-ui">
+    <rect x="860" y="250" width="220" height="132" fill="#fafaf9" stroke="#57534e" rx="2"/>
+    <rect x="860" y="250" width="220" height="42" fill="#e7e5e4"/>
+    <text x="970" y="265" text-anchor="middle" font-size="10" fill="#78716c">&lt;&lt;enumeration&gt;&gt;</text>
+    <text x="970" y="282" text-anchor="middle" font-size="13" font-weight="700">AlgoType</text>
+    <line x1="860" y1="292" x2="1080" y2="292" stroke="#a8a29e"/>
+    <text x="870" y="308" font-size="11">FIXED_WINDOW</text>
+    <text x="870" y="323" font-size="11">SLIDING_WINDOW_LOG</text>
+    <text x="870" y="338" font-size="11">SLIDING_WINDOW_COUNTER</text>
+    <text x="870" y="353" font-size="11">TOKEN_BUCKET</text>
+    <text x="870" y="368" font-size="11">LEAKY_BUCKET</text>
+  </g>
+
+  <g font-family="system-ui">
+    <rect x="416" y="424" width="268" height="90" fill="#fafaf9" stroke="#57534e" rx="2"/>
+    <rect x="416" y="424" width="268" height="42" fill="#e7e5e4"/>
+    <text x="550" y="439" text-anchor="middle" font-size="10" fill="#78716c">&lt;&lt;interface - Strategy&gt;&gt;</text>
+    <text x="550" y="456" text-anchor="middle" font-size="13" font-weight="700" font-style="italic">RateLimitStrategy</text>
+    <line x1="416" y1="466" x2="684" y2="466" stroke="#a8a29e"/>
+    <text x="426" y="486" font-size="11">+ tryAcquire(now): Decision</text>
+  </g>
+
+  <g font-family="system-ui" font-size="11">
+    <rect x="16" y="576" width="196" height="70" fill="#fafaf9" stroke="#57534e" rx="2"/>
+    <rect x="16" y="576" width="196" height="42" fill="#e7e5e4"/>
+    <text x="114" y="591" text-anchor="middle" font-size="10" fill="#78716c">&lt;&lt;Concrete Strategy&gt;&gt;</text>
+    <text x="114" y="608" text-anchor="middle" font-size="13" font-weight="700">FixedWindow</text>
+    <text x="26" y="632">+ tryAcquire(now)</text>
+
+    <rect x="228" y="576" width="196" height="70" fill="#fafaf9" stroke="#57534e" rx="2"/>
+    <rect x="228" y="576" width="196" height="42" fill="#e7e5e4"/>
+    <text x="326" y="591" text-anchor="middle" font-size="10" fill="#78716c">&lt;&lt;Concrete Strategy&gt;&gt;</text>
+    <text x="326" y="608" text-anchor="middle" font-size="13" font-weight="700">SlidingWindowLog</text>
+    <text x="238" y="632">+ tryAcquire(now)</text>
+
+    <rect x="440" y="576" width="204" height="70" fill="#fafaf9" stroke="#57534e" rx="2"/>
+    <rect x="440" y="576" width="204" height="42" fill="#e7e5e4"/>
+    <text x="542" y="591" text-anchor="middle" font-size="10" fill="#78716c">&lt;&lt;Concrete Strategy&gt;&gt;</text>
+    <text x="542" y="608" text-anchor="middle" font-size="12" font-weight="700">SlidingWindowCounter</text>
+    <text x="450" y="632">+ tryAcquire(now)</text>
+
+    <rect x="660" y="576" width="196" height="70" fill="#fafaf9" stroke="#57534e" rx="2"/>
+    <rect x="660" y="576" width="196" height="42" fill="#e7e5e4"/>
+    <text x="758" y="591" text-anchor="middle" font-size="10" fill="#78716c">&lt;&lt;Concrete Strategy&gt;&gt;</text>
+    <text x="758" y="608" text-anchor="middle" font-size="13" font-weight="700">TokenBucket</text>
+    <text x="670" y="632">+ tryAcquire(now)</text>
+
+    <rect x="872" y="576" width="196" height="70" fill="#fafaf9" stroke="#57534e" rx="2"/>
+    <rect x="872" y="576" width="196" height="42" fill="#e7e5e4"/>
+    <text x="970" y="591" text-anchor="middle" font-size="10" fill="#78716c">&lt;&lt;Concrete Strategy&gt;&gt;</text>
+    <text x="970" y="608" text-anchor="middle" font-size="13" font-weight="700">LeakyBucket</text>
+    <text x="882" y="632">+ tryAcquire(now)</text>
+  </g>
+
+  <text x="28" y="708" font-size="11" fill="#78716c" font-family="system-ui">filled diamond = composition | dashed = create | hollow triangle = implements</text>
+  <text x="28" y="726" font-size="11" fill="#78716c" font-family="system-ui">Request path: allow(key) -&gt; configOf -&gt; computeIfAbsent -&gt; tryAcquire(clock.now()) -&gt; Decision</text>
+</svg>

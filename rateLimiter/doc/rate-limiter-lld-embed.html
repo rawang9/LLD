@@ -1,0 +1,241 @@
+  <h2>Diagrams</h2>
+  <table>
+    <thead><tr><th>SVG</th><th>What it shows</th></tr></thead>
+    <tbody>
+      <tr><td><a href="./rate-limiter-strategies-animated.svg">rate-limiter-strategies-animated.svg</a></td><td>5 strategies carousel - one highlighted at a time</td></tr>
+      <tr><td><a href="./rate-limiter-lld-uml.svg">rate-limiter-lld-uml.svg</a></td><td>LLD UML (Facade · Factory · Strategy · DI)</td></tr>
+      <tr><td><a href="./rate-limiter-hld.svg">rate-limiter-hld.svg</a></td><td>HLD - Gateway, Zookeeper, Redis x 20, microservices</td></tr>
+    </tbody>
+  </table>
+
+  <div class="banner">
+    <strong>Completed in-memory design:</strong>
+    Facade <code>allow(key)</code> + Factory + injected Clock + five strategies.
+    Redis / Lua is the distributed follow-up, not the first drawing.
+  </div>
+
+  <h2>UML — target class diagram</h2>
+  <p>Dashed frames are patterns. Draw this first in the interview. <code>RateLimiter</code> is the doorman and the Strategy Context. Tier stays off this diagram — it maps to <code>RateLimitConfig</code> outside.</p>
+
+  <div class="uml-wrap">
+    <svg class="uml" viewBox="0 0 1088 740" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Rate limiter class diagram">
+      <defs>
+        <marker id="open" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+          <path d="M0 0 L10 4 L0 8" fill="none" stroke="#57534e" stroke-width="1.2"/>
+        </marker>
+        <marker id="inherit" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto">
+          <path d="M0 0 L12 5 L0 10 Z" fill="#fff" stroke="#57534e" stroke-width="1.2"/>
+        </marker>
+        <marker id="compose" markerWidth="14" markerHeight="10" refX="1" refY="5" orient="auto">
+          <path d="M0 5 L7 0 L14 5 L7 10 Z" fill="#57534e"/>
+        </marker>
+      </defs>
+
+      <!-- frames -->
+      <rect x="16" y="4" width="212" height="108" fill="none" stroke="#a8a29e" stroke-dasharray="7 5" rx="6"/>
+      <rect x="22" y="0" width="28" height="14" fill="#fff"/><text x="26" y="12" font-size="10" font-weight="700" fill="#78716c" font-family="system-ui">DI</text>
+      <rect x="254" y="4" width="296" height="178" fill="none" stroke="#a8a29e" stroke-dasharray="7 5" rx="6"/>
+      <rect x="264" y="0" width="58" height="14" fill="#fff"/><text x="268" y="12" font-size="10" font-weight="700" fill="#78716c" font-family="system-ui">FACADE</text>
+      <rect x="574" y="4" width="248" height="108" fill="none" stroke="#a8a29e" stroke-dasharray="7 5" rx="6"/>
+      <rect x="584" y="0" width="62" height="14" fill="#fff"/><text x="588" y="12" font-size="10" font-weight="700" fill="#78716c" font-family="system-ui">FACTORY</text>
+      <rect x="8" y="348" width="1072" height="280" fill="none" stroke="#a8a29e" stroke-dasharray="7 5" rx="6"/>
+      <rect x="18" y="340" width="78" height="14" fill="#fff"/><text x="22" y="352" font-size="10" font-weight="700" fill="#78716c" font-family="system-ui">STRATEGY</text>
+
+      <!-- connectors -->
+      <line x1="216" y1="59" x2="268" y2="52" stroke="#57534e" stroke-width="1.2" marker-end="url(#open)"/>
+      <text x="242" y="46" text-anchor="middle" font-size="10" fill="#78716c" font-family="system-ui">uses</text>
+      <line x1="536" y1="52" x2="588" y2="59" stroke="#57534e" stroke-width="1.2" marker-end="url(#open)"/>
+      <text x="562" y="44" text-anchor="middle" font-size="10" fill="#78716c" font-family="system-ui">uses</text>
+      <line x1="808" y1="59" x2="860" y2="52" stroke="#57534e" stroke-width="1.2" marker-end="url(#open)"/>
+      <text x="834" y="46" text-anchor="middle" font-size="10" fill="#78716c" font-family="system-ui">reads</text>
+      <line x1="970" y1="164" x2="970" y2="198" stroke="#57534e" stroke-width="1.2" marker-end="url(#open)"/>
+      <text x="988" y="186" font-size="10" fill="#78716c" font-family="system-ui">type</text>
+      <path d="M268 140 L260 140 L260 238 L248 238" fill="none" stroke="#57534e" stroke-width="1.2" marker-end="url(#open)"/>
+      <text x="256" y="128" text-anchor="end" font-size="10" fill="#78716c" font-family="system-ui">returns</text>
+      <path d="M402 190 L402 348 L550 348 L550 372" fill="none" stroke="#57534e" stroke-width="1.2" marker-start="url(#compose)" marker-end="url(#open)"/>
+      <text x="414" y="340" font-size="10" fill="#78716c" font-family="system-ui">1  byKey  *</text>
+      <path d="M698 108 L698 324 L660 324 L660 372" fill="none" stroke="#a8a29e" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#open)"/>
+      <text x="706" y="318" font-size="10" fill="#78716c" font-family="system-ui">«create»</text>
+      <path d="M114 524 L114 490 L550 490 L550 462" fill="none" stroke="#57534e" stroke-width="1.2" marker-end="url(#inherit)"/>
+      <path d="M326 524 L326 490 L550 490 L550 462" fill="none" stroke="#57534e" stroke-width="1.2" marker-end="url(#inherit)"/>
+      <path d="M542 524 L542 490 L550 490 L550 462" fill="none" stroke="#57534e" stroke-width="1.2" marker-end="url(#inherit)"/>
+      <path d="M758 524 L758 490 L550 490 L550 462" fill="none" stroke="#57534e" stroke-width="1.2" marker-end="url(#inherit)"/>
+      <path d="M970 524 L970 490 L550 490 L550 462" fill="none" stroke="#57534e" stroke-width="1.2" marker-end="url(#inherit)"/>
+
+      <!-- Clock -->
+      <g font-family="system-ui">
+        <rect x="28" y="16" width="188" height="86" fill="#fafaf9" stroke="#57534e" rx="2"/>
+        <rect x="28" y="16" width="188" height="42" fill="#e7e5e4"/>
+        <text x="122" y="31" text-anchor="middle" font-size="10" fill="#78716c">«interface · DI»</text>
+        <text x="122" y="48" text-anchor="middle" font-size="13" font-weight="700" font-style="italic">Clock</text>
+        <line x1="28" y1="58" x2="216" y2="58" stroke="#a8a29e"/>
+        <text x="38" y="78" font-size="11">+ now(): Instant</text>
+      </g>
+
+      <!-- RateLimiter -->
+      <g font-family="system-ui">
+        <rect x="268" y="16" width="268" height="168" fill="#fafaf9" stroke="#1d4ed8" stroke-width="1.6" rx="2"/>
+        <rect x="268" y="16" width="268" height="42" fill="#dbeafe"/>
+        <text x="402" y="31" text-anchor="middle" font-size="10" fill="#1e40af">«Facade + Strategy Context»</text>
+        <text x="402" y="48" text-anchor="middle" font-size="13" font-weight="700">RateLimiter</text>
+        <line x1="268" y1="58" x2="536" y2="58" stroke="#a8a29e"/>
+        <text x="278" y="74" font-size="11">− byKey: Map&lt;String, Algo&gt;</text>
+        <text x="278" y="89" font-size="11">− factory: RateLimitFactory</text>
+        <text x="278" y="104" font-size="11">− clock: Clock</text>
+        <text x="278" y="119" font-size="11">− configOf: Function</text>
+        <line x1="268" y1="128" x2="536" y2="128" stroke="#a8a29e"/>
+        <text x="278" y="148" font-size="11">+ allow(key): Decision</text>
+      </g>
+
+      <!-- Factory -->
+      <g font-family="system-ui">
+        <rect x="588" y="16" width="220" height="90" fill="#fafaf9" stroke="#57534e" rx="2"/>
+        <rect x="588" y="16" width="220" height="42" fill="#e7e5e4"/>
+        <text x="698" y="31" text-anchor="middle" font-size="10" fill="#78716c">«Factory»</text>
+        <text x="698" y="48" text-anchor="middle" font-size="13" font-weight="700">RateLimitFactory</text>
+        <line x1="588" y1="58" x2="808" y2="58" stroke="#a8a29e"/>
+        <text x="598" y="78" font-size="11">+ create(config): Algo</text>
+      </g>
+
+      <!-- Config -->
+      <g font-family="system-ui">
+        <rect x="860" y="16" width="220" height="148" fill="#fafaf9" stroke="#57534e" rx="2"/>
+        <rect x="860" y="16" width="220" height="42" fill="#e7e5e4"/>
+        <text x="970" y="31" text-anchor="middle" font-size="10" fill="#78716c">«record»</text>
+        <text x="970" y="48" text-anchor="middle" font-size="13" font-weight="700">RateLimitConfig</text>
+        <line x1="860" y1="58" x2="1080" y2="58" stroke="#a8a29e"/>
+        <text x="870" y="74" font-size="11">+ limit: int</text>
+        <text x="870" y="89" font-size="11">+ window: Duration</text>
+        <text x="870" y="104" font-size="11">+ type: AlgoType</text>
+        <text x="870" y="119" font-size="11">+ refillRate: double</text>
+      </g>
+
+      <!-- Decision -->
+      <g font-family="system-ui">
+        <rect x="28" y="214" width="220" height="118" fill="#fafaf9" stroke="#57534e" rx="2"/>
+        <rect x="28" y="214" width="220" height="42" fill="#e7e5e4"/>
+        <text x="138" y="229" text-anchor="middle" font-size="10" fill="#78716c">«record»</text>
+        <text x="138" y="246" text-anchor="middle" font-size="13" font-weight="700">RateLimitDecision</text>
+        <line x1="28" y1="256" x2="248" y2="256" stroke="#a8a29e"/>
+        <text x="38" y="272" font-size="11">+ allowed: boolean</text>
+        <text x="38" y="287" font-size="11">+ remaining: int</text>
+        <text x="38" y="302" font-size="11">+ retryAt: Instant</text>
+      </g>
+
+      <!-- AlgoType -->
+      <g font-family="system-ui">
+        <rect x="860" y="198" width="220" height="132" fill="#fafaf9" stroke="#57534e" rx="2"/>
+        <rect x="860" y="198" width="220" height="42" fill="#e7e5e4"/>
+        <text x="970" y="213" text-anchor="middle" font-size="10" fill="#78716c">«enumeration»</text>
+        <text x="970" y="230" text-anchor="middle" font-size="13" font-weight="700">AlgoType</text>
+        <line x1="860" y1="240" x2="1080" y2="240" stroke="#a8a29e"/>
+        <text x="870" y="256" font-size="11">FIXED_WINDOW</text>
+        <text x="870" y="271" font-size="11">SLIDING_LOG</text>
+        <text x="870" y="286" font-size="11">SLIDING_COUNTER</text>
+        <text x="870" y="301" font-size="11">TOKEN_BUCKET</text>
+        <text x="870" y="316" font-size="11">LEAKY_BUCKET</text>
+      </g>
+
+      <!-- Strategy interface -->
+      <g font-family="system-ui">
+        <rect x="416" y="372" width="268" height="90" fill="#fafaf9" stroke="#57534e" rx="2"/>
+        <rect x="416" y="372" width="268" height="42" fill="#e7e5e4"/>
+        <text x="550" y="387" text-anchor="middle" font-size="10" fill="#78716c">«interface · Strategy»</text>
+        <text x="550" y="404" text-anchor="middle" font-size="13" font-weight="700" font-style="italic">RateLimitAlgo</text>
+        <line x1="416" y1="414" x2="684" y2="414" stroke="#a8a29e"/>
+        <text x="426" y="434" font-size="11">+ tryAcquire(now): Decision</text>
+      </g>
+
+      <!-- five strategies -->
+      <g font-family="system-ui" font-size="11">
+        <rect x="16" y="524" width="196" height="70" fill="#fafaf9" stroke="#57534e" rx="2"/>
+        <rect x="16" y="524" width="196" height="42" fill="#e7e5e4"/>
+        <text x="114" y="539" text-anchor="middle" font-size="10" fill="#78716c">«Concrete Strategy»</text>
+        <text x="114" y="556" text-anchor="middle" font-size="13" font-weight="700">FixedWindow</text>
+        <text x="26" y="580">+ tryAcquire(now)</text>
+
+        <rect x="228" y="524" width="196" height="70" fill="#fafaf9" stroke="#57534e" rx="2"/>
+        <rect x="228" y="524" width="196" height="42" fill="#e7e5e4"/>
+        <text x="326" y="539" text-anchor="middle" font-size="10" fill="#78716c">«Concrete Strategy»</text>
+        <text x="326" y="556" text-anchor="middle" font-size="13" font-weight="700">SlidingWindowLog</text>
+        <text x="238" y="580">+ tryAcquire(now)</text>
+
+        <rect x="440" y="524" width="204" height="70" fill="#fafaf9" stroke="#57534e" rx="2"/>
+        <rect x="440" y="524" width="204" height="42" fill="#e7e5e4"/>
+        <text x="542" y="539" text-anchor="middle" font-size="10" fill="#78716c">«Concrete Strategy»</text>
+        <text x="542" y="556" text-anchor="middle" font-size="12" font-weight="700">SlidingWindowCounter</text>
+        <text x="450" y="580">+ tryAcquire(now)</text>
+
+        <rect x="660" y="524" width="196" height="70" fill="#fafaf9" stroke="#57534e" rx="2"/>
+        <rect x="660" y="524" width="196" height="42" fill="#e7e5e4"/>
+        <text x="758" y="539" text-anchor="middle" font-size="10" fill="#78716c">«Concrete Strategy»</text>
+        <text x="758" y="556" text-anchor="middle" font-size="13" font-weight="700">TokenBucket</text>
+        <text x="670" y="580">+ tryAcquire(now)</text>
+
+        <rect x="872" y="524" width="196" height="70" fill="#fafaf9" stroke="#57534e" rx="2"/>
+        <rect x="872" y="524" width="196" height="42" fill="#e7e5e4"/>
+        <text x="970" y="539" text-anchor="middle" font-size="10" fill="#78716c">«Concrete Strategy»</text>
+        <text x="970" y="556" text-anchor="middle" font-size="13" font-weight="700">LeakyBucket</text>
+        <text x="882" y="580">+ tryAcquire(now)</text>
+      </g>
+
+      <text x="28" y="668" font-size="11" fill="#78716c" font-family="system-ui">filled diamond = composition (owns) · dashed = create · hollow triangle = implements</text>
+      <text x="28" y="686" font-size="11" fill="#78716c" font-family="system-ui">Patterns: Facade · Factory · Strategy · DI. No Singleton. Tier stays outside.</text>
+    </svg>
+  </div>
+  <p class="caption">Scroll sideways on a small screen. Print / Save as PDF from the browser if you want a handout.</p>
+
+  <h2>Request path</h2>
+<pre>Request
+   │
+   ▼
+RateLimiter.allow(key)           ← Facade
+   │
+   ├── configOf.apply(key)       ← guest list
+   ├── Factory.create(config)    ← first time only (computeIfAbsent)
+   │
+   ▼
+strategy.tryAcquire(clock.now())
+   │
+   ▼
+Decision { allowed, remaining, retryAt }</pre>
+
+  <h2>How we built it</h2>
+  <table>
+    <thead><tr><th>#</th><th>Added</th><th>Why that order</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Strategy + Fixed Window</td><td>One interface; <code>(limit, window)</code> not Tier</td></tr>
+      <tr><td>2</td><td>Factory + AlgoType enum</td><td>No singleton, no magic strings</td></tr>
+      <tr><td>3</td><td>Clock / FakeClock</td><td>Freeze time; no LocalTime midnight wrap</td></tr>
+      <tr><td>4</td><td>RateLimiter.allow(key)</td><td>The actual LLD — the request path</td></tr>
+      <tr><td>5</td><td>configOf function</td><td>Product rules stay outside the doorman</td></tr>
+      <tr><td>6</td><td>Four more algorithms</td><td>Same interface, leftover-time math</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Algorithms</h2>
+  <table>
+    <thead><tr><th>Algo</th><th>Idea</th><th>Say this</th></tr></thead>
+    <tbody>
+      <tr><td>Fixed Window</td><td>Reset every T; aligned snap</td><td>Cheap. 2× burst at the boundary.</td></tr>
+      <tr><td>Sliding Log</td><td>Store timestamps</td><td>Exact. Memory O(limit).</td></tr>
+      <tr><td>Sliding Counter</td><td>Weighted prev + current</td><td>Approximate. O(1) memory.</td></tr>
+      <tr><td>Token Bucket</td><td>Tickets refill; spend 1</td><td>Burst = capacity. Start full.</td></tr>
+      <tr><td>Leaky Bucket</td><td>Water leaks; add 1 if room</td><td>Smooths bursts. Start empty.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Learnings we actually hit</h2>
+  <ul>
+    <li><strong>Doorman first.</strong> Five algos with no <code>allow(key)</code> fails Senior LLD.</li>
+    <li><strong>Instant + Clock.</strong> <code>LocalTime.toSecondOfDay()</code> breaks at midnight.</li>
+    <li><strong>Keep remainder.</strong> <code>lastRefill = reqTime</code> after integer divide silently kills refill/leak.</li>
+    <li><strong>Snap windows</strong> with <code>+ n * window</code>, not <code>= reqTime</code>.</li>
+    <li><strong>computeIfAbsent</strong> — the race is who owns the instance for a key.</li>
+    <li><strong>No Singleton</strong> on a stateless factory. Inject one <code>RateLimiter</code>.</li>
+    <li><strong>Token ≠ Leaky.</strong> Tickets vs water. Do not refill and leak the same number.</li>
+    <li><strong>Java:</strong> <code>configOf.apply(k)</code>, <code>Main::getConfig</code>, <code>this::createFor</code>.</li>
+  </ul>
+
+  <h2>Memorize</h2>
+  <p>Doorman first. Numbers not Tier. Instant not LocalTime. Keep remainder. Decision not boolean. Enum factory, no singleton. <code>computeIfAbsent</code>. Say 2× burst. Redis is a follow-up.</p>
