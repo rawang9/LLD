@@ -1,6 +1,6 @@
 # Rate Limiter LLD — How it works, how we built it, what we learned
 
-Companion to [`../README.md`](../README.md). **Live demo:** [`rate-limiter-playground.html`](./rate-limiter-playground.html) (five algos + HLD/LLD on one page).
+Companion to [`../README.md`](../README.md). **Live demo:** [`rate-limiter-playground.html`](../web_content/rate-limiter-playground.html) (five algos + HLD/LLD on one page).
 
 ---
 
@@ -264,8 +264,8 @@ See **[README — Host on GitHub Pages](../README.md#host-on-github-pages)**. Su
 
 1. Push to GitHub (`main`).
 2. Settings → Pages → Source: **GitHub Actions**.
-3. Workflow `.github/workflows/rate-limiter-pages.yml` publishes `rateLimiter/doc/`.
-4. Open `https://<user>.github.io/<repo>/` → playground.
+3. Workflow `.github/workflows/rate-limiter-pages.yml` publishes all of `rateLimiter/` (`web_content/` + `docs/`).
+4. Open `https://<user>.github.io/<repo>/` → redirects into the playground.
 
 ---
 

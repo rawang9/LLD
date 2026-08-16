@@ -990,6 +990,8 @@ function init() {
   renderSections();
   updateSpeedButtons();
   loadLldSection();
+  loadNotesSection();
+  initDropboxBlast();
   tickClock();
 }
 

@@ -83,6 +83,33 @@ a { color: var(--accent); }
   font-weight: 600;
 }
 
+@media (max-width: 640px) {
+  .site-header-inner {
+    gap: 10px;
+  }
+
+  .brand {
+    flex: 0 0 auto;
+    font-size: 15px;
+  }
+
+  .site-nav {
+    gap: 14px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .site-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .site-nav a {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+}
+
 /* ---- article ---- */
 .page {
   max-width: var(--wide);
@@ -322,6 +349,12 @@ a { color: var(--accent); }
 .doc-section:last-of-type {
   border-bottom: none;
 }
+
+/* Lab clock sticks only while scrolling through interactive demos. */
+.demos-zone {
+  position: relative;
+}
+
 .clock-sticky {
   position: sticky;
   top: 49px;
@@ -1593,4 +1626,353 @@ a { color: var(--accent); }
   max-width: 220px;
   margin-left: auto;
   margin-right: auto;
+}
+
+/* ---- Notes section (embedded #notes-source) ---- */
+.notes-section {
+  background: linear-gradient(180deg, transparent 0%, rgba(37, 99, 235, 0.03) 100%);
+}
+
+.notes-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .notes-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.notes-toc-wrap {
+  position: sticky;
+  top: 130px;
+}
+
+.notes-toc {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  max-height: calc(100vh - 160px);
+  overflow-y: auto;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+.notes-toc-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: var(--muted);
+  margin: 0 0 10px;
+}
+
+.notes-toc ol {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.notes-toc li {
+  margin-bottom: 6px;
+}
+
+.notes-toc a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.notes-toc a:hover {
+  color: var(--accent);
+}
+
+.notes-article {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 28px 32px 40px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+  font-size: 15px;
+  line-height: 1.65;
+  max-width: 100%;
+}
+
+.notes-article.notes-loading,
+.notes-article.notes-error {
+  color: var(--muted);
+  font-style: italic;
+  min-height: 120px;
+}
+
+.notes-article .notes-h2 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin: 2.5rem 0 1rem;
+  padding: 12px 0 8px;
+  border-bottom: 2px solid var(--accent);
+  color: var(--text);
+  letter-spacing: -0.02em;
+  scroll-margin-top: 120px;
+}
+
+.notes-article .notes-h2:first-child {
+  margin-top: 0;
+}
+
+.notes-article .notes-h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 1.75rem 0 0.65rem;
+  color: var(--accent);
+  scroll-margin-top: 120px;
+}
+
+.notes-article .notes-h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 1.25rem 0 0.5rem;
+  color: var(--muted);
+}
+
+.notes-article p {
+  margin: 0 0 1rem;
+  color: var(--text);
+}
+
+.notes-article .notes-quote {
+  margin: 1rem 0 1.25rem;
+  padding: 12px 16px;
+  border-left: 4px solid var(--accent);
+  background: rgba(37, 99, 235, 0.06);
+  border-radius: 0 10px 10px 0;
+  font-style: italic;
+  color: var(--text);
+}
+
+.notes-article .notes-list {
+  margin: 0 0 1.25rem;
+  padding-left: 1.35rem;
+}
+
+.notes-article .notes-list li {
+  margin-bottom: 0.4rem;
+}
+
+.notes-article .notes-code {
+  background: #1e1e2e;
+  color: #cdd6f4;
+  border-radius: 10px;
+  padding: 14px 18px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 1.25rem;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.notes-article .notes-code code {
+  font-family: ui-monospace, Menlo, monospace;
+  white-space: pre;
+}
+
+.notes-article .notes-inline-code {
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 0.88em;
+  background: rgba(120, 113, 108, 0.12);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.notes-article .notes-rule {
+  border: none;
+  border-top: 1px dashed var(--line);
+  margin: 2rem 0;
+}
+
+.notes-article strong {
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ---- Next topic: Dropbox blast ---- */
+.next-topic-section {
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.04) 0%, transparent 100%);
+}
+
+.dropbox-stage {
+  position: relative;
+  min-height: 420px;
+  margin: 0 auto;
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.dropbox-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 2;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 140px;
+  height: 140px;
+  border: none;
+  border-radius: 20px;
+  background: linear-gradient(145deg, #0061ff 0%, #0050d4 100%);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 12px 32px rgba(0, 97, 255, 0.35);
+  transition: transform 0.45s cubic-bezier(0.34, 1.4, 0.64, 1), box-shadow 0.3s, opacity 0.35s;
+}
+
+.dropbox-core:hover {
+  box-shadow: 0 16px 40px rgba(0, 97, 255, 0.45);
+  transform: translate(-50%, -50%) scale(1.04);
+}
+
+.dropbox-exploded .dropbox-core {
+  transform: translate(-50%, -50%) scale(0.72);
+  opacity: 0.85;
+  box-shadow: 0 6px 20px rgba(0, 97, 255, 0.25);
+}
+
+.dropbox-icon {
+  opacity: 0.95;
+}
+
+.dropbox-label {
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.dropbox-hint {
+  font-size: 9px;
+  opacity: 0.85;
+  font-weight: 500;
+  text-align: center;
+  max-width: 100px;
+  line-height: 1.2;
+}
+
+.dropbox-reset-hint {
+  position: absolute;
+  bottom: 0;
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.dropbox-exploded .dropbox-reset-hint {
+  opacity: 1;
+}
+
+.dropbox-modules {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.dropbox-exploded .dropbox-modules {
+  pointer-events: auto;
+}
+
+.dropbox-module {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 118px;
+  padding: 12px 10px;
+  background: var(--paper);
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.3);
+  transition:
+    transform 0.55s cubic-bezier(0.34, 1.3, 0.64, 1),
+    opacity 0.4s ease;
+  transition-delay: calc(var(--i) * 40ms);
+}
+
+.dropbox-exploded .dropbox-module {
+  opacity: 1;
+  transform:
+    translate(-50%, -50%)
+    rotate(calc(var(--i) * 45deg))
+    translateY(-175px)
+    rotate(calc(var(--i) * -45deg))
+    scale(1);
+}
+
+.dropbox-module .mod-icon {
+  display: block;
+  font-size: 1.25rem;
+  margin-bottom: 4px;
+}
+
+.dropbox-module h3 {
+  font-size: 11px;
+  font-weight: 800;
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.dropbox-module p {
+  font-size: 9px;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.3;
+}
+
+.dropbox-module[data-module="upload"] { border-color: #2563eb; }
+.dropbox-module[data-module="download"] { border-color: #0891b2; }
+.dropbox-module[data-module="versioning"] { border-color: #7c3aed; }
+.dropbox-module[data-module="multipart"] { border-color: #db2777; }
+.dropbox-module[data-module="userAccess"] { border-color: #ea580c; }
+.dropbox-module[data-module="chunking"] { border-color: #ca8a04; }
+.dropbox-module[data-module="sha256"] { border-color: #16a34a; }
+.dropbox-module[data-module="s3"] { border-color: #57534e; }
+
+.dropbox-module[data-module="upload"] .mod-icon { color: #2563eb; }
+.dropbox-module[data-module="download"] .mod-icon { color: #0891b2; }
+.dropbox-module[data-module="versioning"] .mod-icon { color: #7c3aed; }
+.dropbox-module[data-module="multipart"] .mod-icon { color: #db2777; }
+.dropbox-module[data-module="userAccess"] .mod-icon { color: #ea580c; }
+.dropbox-module[data-module="chunking"] .mod-icon { color: #ca8a04; }
+.dropbox-module[data-module="sha256"] .mod-icon { color: #16a34a; }
+.dropbox-module[data-module="s3"] .mod-icon { color: #57534e; }
+
+@media (max-width: 520px) {
+  .dropbox-exploded .dropbox-module {
+    transform:
+      translate(-50%, -50%)
+      rotate(calc(var(--i) * 45deg))
+      translateY(-130px)
+      rotate(calc(var(--i) * -45deg))
+      scale(0.9);
+  }
+
+  .dropbox-module {
+    width: 96px;
+    padding: 8px 6px;
+  }
+
+  .dropbox-module h3 {
+    font-size: 10px;
+  }
 }

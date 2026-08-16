@@ -1,0 +1,3291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rate Limiter Playground — visualize five algorithms</title>
+  <link rel="stylesheet" href="./rate-limiter-playground.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="./rate-limiter-playground.html">Rate Limiter LLD</a>
+      <nav class="site-nav">
+        <a href="#fixed">Demos</a>
+        <a href="#hld">HLD</a>
+        <a href="#lld">LLD</a>
+        <a href="#notes">Notes</a>
+        <a href="#next-topic">Next topic</a>
+        <a href="./rate-limiter-playground.html" aria-current="page">Playground</a>
+      </nav>
+    </div>
+  </header>
+
+  <article class="page">
+    <header class="hero">
+      <p class="eyebrow">Interactive demo</p>
+      <h1>Visualizing rate limit algorithms</h1>
+      <p class="hero-lede">
+        Five live demos — same logic as <code>src/ratelimit/strategy/</code>.
+        Lab clock at <code>2026-08-15T12:00:00Z</code> with 1× / 2× / 3× speed.
+        HLD and LLD diagrams are at the bottom.
+      </p>
+      <p class="hero-note">
+        Inspired by interactive write-ups like
+        <a href="https://smudge.ai/blog/ratelimit-algorithms" target="_blank" rel="noopener">smudge.ai on rate limits</a>
+        — one algorithm per section, prose + playground.
+      </p>
+    </header>
+
+    <nav class="toc" aria-label="On this page">
+      <span class="toc-label">Jump to</span>
+      <a href="#fixed">Fixed window</a>
+      <a href="#log">Sliding log</a>
+      <a href="#counter">Sliding counter</a>
+      <a href="#token">Token bucket</a>
+      <a href="#leaky">Leaky bucket</a>
+      <a href="#hld">HLD</a>
+      <a href="#lld">LLD</a>
+      <a href="#notes">Notes</a>
+      <a href="#next-topic">Next topic</a>
+    </nav>
+
+    <div class="demos-zone">
+      <aside class="clock-sticky">
+        <div class="clock-inner">
+          <div>
+            <div class="clock-label">Lab clock</div>
+            <div class="clock-time" id="lab-clock">--</div>
+          </div>
+          <p class="clock-hint">Refill, leak, and window rollover use this moving time.</p>
+          <div class="clock-speed" role="group" aria-label="Lab clock speed">
+            <span class="clock-speed-label">Speed</span>
+            <button type="button" class="btn btn-small speed-btn speed-btn-active" data-speed="1" aria-pressed="true">1×</button>
+            <button type="button" class="btn btn-small speed-btn" data-speed="2" aria-pressed="false">2×</button>
+            <button type="button" class="btn btn-small speed-btn" data-speed="3" aria-pressed="false">3×</button>
+          </div>
+          <button type="button" class="btn btn-small" id="btn-reset">Reset all</button>
+        </div>
+      </aside>
+
+      <div id="playground-sections"></div>
+    </div>
+
+    <section class="doc-section" id="hld">
+      <h2>High-level design (HLD)</h2>
+      <p class="doc-lede">Gateway rate limiting at scale — client identity, rules engine, Zookeeper config, Redis cluster, and microservices.</p>
+      <figure class="doc-figure doc-figure-hld">
+        <img src="../docs/rate-limiter-hld.svg" width="920" height="620" alt="Rate limiter high-level design: client, API gateway, Zookeeper, Redis cluster, microservices" loading="lazy" />
+        <figcaption class="doc-caption">1M rps · 100M DAU · check &lt; 10ms · availability over consistency</figcaption>
+      </figure>
+    </section>
+
+    <section class="doc-section" id="lld">
+      <h2>Low-level design (LLD)</h2>
+      <p class="doc-lede">UML class diagram, request path, build order, and algorithm notes. Deep dive: <a href="../docs/HOW_WE_BUILT_IT.md">HOW_WE_BUILT_IT.md</a>.</p>
+      <div id="lld-content" class="lld-doc" aria-live="polite">Loading LLD…</div>
+    </section>
+
+    <section class="doc-section notes-section" id="notes">
+      <h2>Notes</h2>
+      <p class="doc-lede">Complete LLD + HLD master article — algorithms, Redis/Lua, cluster, failures, observability. Rendered from the embedded source below (styled, unedited).</p>
+      <div class="notes-layout">
+        <div id="notes-toc" class="notes-toc-wrap"></div>
+        <div id="notes-content" class="notes-article" aria-live="polite">Loading notes…</div>
+      </div>
+    </section>
+
+    <section class="doc-section next-topic-section" id="next-topic">
+      <h2>Next topic — Dropbox</h2>
+      <p class="doc-lede">Click the box to blast it into core system-design modules — upload path, storage, integrity, and access.</p>
+      <div class="dropbox-stage" id="dropbox-stage">
+        <button type="button" class="dropbox-core" id="dropbox-blast-btn" aria-expanded="false">
+          <span class="dropbox-icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48" width="40" height="40"><path fill="currentColor" d="M6 32l18-12 18 12-18 12L6 32zm0-12l18-12 18 12-18 12L6 20z"/></svg>
+          </span>
+          <span class="dropbox-label">Dropbox</span>
+          <span class="dropbox-hint">Click to blast into modules</span>
+        </button>
+        <div class="dropbox-modules" aria-hidden="true">
+          <article class="dropbox-module" style="--i:0" data-module="upload">
+            <span class="mod-icon">↑</span>
+            <h3>Upload</h3>
+            <p>Client → API → storage pipeline</p>
+          </article>
+          <article class="dropbox-module" style="--i:1" data-module="download">
+            <span class="mod-icon">↓</span>
+            <h3>Download</h3>
+            <p>CDN / signed URLs / streaming</p>
+          </article>
+          <article class="dropbox-module" style="--i:2" data-module="versioning">
+            <span class="mod-icon">⧉</span>
+            <h3>Versioning</h3>
+            <p>Revision history &amp; conflict handling</p>
+          </article>
+          <article class="dropbox-module" style="--i:3" data-module="multipart">
+            <span class="mod-icon">⊞</span>
+            <h3>Multipart</h3>
+            <p>Large file split &amp; parallel parts</p>
+          </article>
+          <article class="dropbox-module" style="--i:4" data-module="userAccess">
+            <span class="mod-icon">👤</span>
+            <h3>User Access</h3>
+            <p>ACL, sharing links, permissions</p>
+          </article>
+          <article class="dropbox-module" style="--i:5" data-module="chunking">
+            <span class="mod-icon">▦</span>
+            <h3>Chunking</h3>
+            <p>Fixed-size blocks &amp; dedup keys</p>
+          </article>
+          <article class="dropbox-module" style="--i:6" data-module="sha256">
+            <span class="mod-icon">#</span>
+            <h3>SHA-256 Validation</h3>
+            <p>Bit-level integrity per chunk</p>
+          </article>
+          <article class="dropbox-module" style="--i:7" data-module="s3">
+            <span class="mod-icon">☁</span>
+            <h3>S3</h3>
+            <p>Object store backend (blob layer)</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <footer class="page-footer">
+      <p>
+        <a href="#fixed">Demos</a> &middot;
+        <a href="#hld">HLD</a> &middot;
+        <a href="#lld">LLD</a> &middot;
+        <a href="#notes">Notes</a> &middot;
+        <a href="#next-topic">Next topic</a> &middot;
+        <a href="../docs/HOW_WE_BUILT_IT.md">How we built it</a> &middot;
+        Java + Redis/Lua in <code>rateLimiter/</code>
+      </p>
+    </footer>
+  </article>
+
+  <script type="text/plain" id="notes-source">
+# Rate Limiter — Complete LLD + HLD
+
+> **Goal:** Design, implement, scale, and operate a production-grade distributed rate limiter.
+
+---
+
+# 1. What Is a Rate Limiter?
+
+A rate limiter answers one fundamental question:
+
+> **"Is this client allowed to make one more request right now?"**
+
+If yes:
+
+```text
+ALLOW
+```
+
+If no:
+
+```text
+HTTP 429 Too Many Requests
+```
+
+A rate limiter can also return:
+
+```text
+remaining
+retryAt
+```
+
+Conceptually:
+
+```text
+Client
+   |
+   v
+RateLimiter.allow(key)
+   |
+   +---- identify configuration
+   |
+   +---- select algorithm
+   |
+   +---- make decision
+   |
+   v
+RateLimitDecision
+```
+
+The rate limiter is essentially a **doorman**.
+
+The algorithms are different ways of deciding who gets in.
+
+---
+
+# 2. Why Do We Need Rate Limiting?
+
+Without rate limiting:
+
+```text
+Client
+   |
+   | 100K requests/sec
+   v
+API
+   |
+   v
+Database
+```
+
+One client or a sudden traffic spike can overload the entire system.
+
+Rate limiting protects:
+
+* API servers
+* Databases
+* External APIs
+* Payment systems
+* Expensive computations
+* Shared infrastructure
+
+It also provides:
+
+* Fairness between users
+* Abuse prevention
+* Traffic control
+* Predictable resource consumption
+
+---
+
+# 3. Burst Traffic vs Steady Traffic
+
+## Steady Traffic
+
+Requests arrive relatively evenly.
+
+```text
+R   R   R   R   R   R
+```
+
+Example:
+
+```text
+1 request every second
+```
+
+---
+
+## Burst Traffic
+
+Many requests arrive in a short period.
+
+```text
+RRRRRRRRRRRR
+```
+
+Example:
+
+```text
+20 requests in 100 ms
+```
+
+Real applications naturally produce bursts.
+
+For example, opening a mobile application may trigger:
+
+```text
+/profile
+/feed
+/messages
+/notifications
+/settings
+```
+
+almost simultaneously.
+
+This is why simply saying:
+
+```text
+100 requests/minute
+```
+
+is not enough.
+
+We also need to think about **burst capacity**.
+
+---
+
+# 4. Where Can Rate Limiting Live?
+
+Possible locations include:
+
+```text
+Client
+   ↓
+CDN
+   ↓
+Global Load Balancer
+   ↓
+API Gateway
+   ↓
+Nginx / Envoy
+   ↓
+Microservice
+```
+
+There is no universal answer.
+
+The location depends on what we want to protect and where we have the required context.
+
+---
+
+## API Gateway
+
+A common location because it can see:
+
+* User identity
+* API key
+* Endpoint
+* Tenant
+* Authentication information
+
+Example:
+
+```text
+Client
+  ↓
+API Gateway
+  ↓
+Rate Limiter
+  ↓
+Payment Service
+```
+
+The request can be rejected before reaching the service.
+
+---
+
+## Microservice
+
+Useful when the limit is specific to business logic.
+
+Example:
+
+```text
+Payment Service
+      ↓
+5 payments/minute
+```
+
+---
+
+## Queue / Traffic Shaping
+
+If the requirement is:
+
+> "Don't reject the burst; process it gradually."
+
+then a queue-based mechanism may be more appropriate.
+
+```text
+Request
+   ↓
+Queue
+   ↓
+Worker
+   ↓
+Service
+```
+
+This is where the **Leaky Bucket shaping model** becomes useful.
+
+---
+
+# 5. Rate-Limiting Algorithms
+
+We studied:
+
+1. Fixed Window
+2. Sliding Window Log
+3. Sliding Window Counter
+4. Token Bucket
+5. Leaky Bucket
+
+The algorithms solve different problems.
+
+---
+
+# 6. Fixed Window Counter
+
+Suppose:
+
+```text
+Limit = 5 requests/minute
+```
+
+We divide time into fixed windows:
+
+```text
+12:00:00 ───────── 12:01:00
+```
+
+Maintain:
+
+```text
+count = 0
+```
+
+Each request:
+
+```text
+count++
+```
+
+If:
+
+```text
+count <= 5
+```
+
+allow.
+
+Otherwise:
+
+```text
+429
+```
+
+At the next window:
+
+```text
+count = 0
+```
+
+---
+
+## Boundary Problem
+
+Suppose:
+
+```text
+11:59:59 → 5 requests
+
+12:00:01 → 5 requests
+```
+
+We just allowed:
+
+```text
+10 requests
+```
+
+within roughly two seconds.
+
+That's the **boundary burst problem**.
+
+### Advantages
+
+* Very simple.
+* O(1) memory.
+* O(1) processing.
+
+### Disadvantage
+
+* Boundary burst.
+
+---
+
+# 7. Sliding Window Log
+
+Instead of fixed windows, maintain timestamps.
+
+For:
+
+```text
+5 requests/minute
+```
+
+we keep:
+
+```text
+12:00:10
+12:00:20
+12:00:35
+12:00:50
+```
+
+When a request arrives:
+
+1. Remove timestamps older than one minute.
+2. Count remaining timestamps.
+3. If count < limit → allow.
+4. Otherwise → reject.
+5. If allowed, insert current timestamp.
+
+---
+
+## Example
+
+At:
+
+```text
+12:01:00
+```
+
+the valid window is:
+
+```text
+12:00:00 → 12:01:00
+```
+
+At:
+
+```text
+12:01:15
+```
+
+it becomes:
+
+```text
+12:00:15 → 12:01:15
+```
+
+The window continuously **slides**.
+
+---
+
+## Complexity
+
+Memory:
+
+```text
+O(N)
+```
+
+where N is the number of requests stored.
+
+This can become expensive for high-volume systems.
+
+### Advantage
+
+Very accurate.
+
+### Disadvantage
+
+Memory-heavy.
+
+---
+
+# 8. Sliding Window Counter
+
+We don't necessarily need every timestamp.
+
+Instead:
+
+```text
+Previous Window Count
+Current Window Count
+```
+
+Example:
+
+```text
+Previous = 8
+Current = 3
+```
+
+Suppose current time is:
+
+```text
+12:01:15
+```
+
+The current one-minute window is:
+
+```text
+12:00:15 → 12:01:15
+```
+
+So 45 seconds of the previous window overlaps.
+
+Estimated previous contribution:
+
+```text
+8 × 45/60
+= 6
+```
+
+Estimated total:
+
+```text
+6 + 3
+= 9
+```
+
+If limit is:
+
+```text
+10
+```
+
+allow.
+
+---
+
+## Formula
+
+```text
+estimatedCount =
+    currentCount
+    +
+    previousCount × overlapRatio
+```
+
+### Advantage
+
+```text
+O(1) memory
+```
+
+### Disadvantage
+
+It is an approximation because we don't know the exact distribution of previous requests.
+
+---
+
+# 9. Token Bucket ⭐
+
+Token Bucket is one of the most important algorithms for API rate limiting.
+
+Think of a bucket containing tokens.
+
+```text
+       🪙 🪙 🪙 🪙 🪙
+      ┌──────────────┐
+      │ TOKEN BUCKET │
+      └──────────────┘
+```
+
+Every request consumes one token.
+
+If a token exists:
+
+```text
+ALLOW
+```
+
+Otherwise:
+
+```text
+REJECT
+```
+
+---
+
+# 10. Token Bucket Has Two Important Parameters
+
+## Refill Rate
+
+Controls the long-term rate.
+
+Example:
+
+```text
+100 tokens/minute
+```
+
+Approximately:
+
+```text
+1.67 tokens/sec
+```
+
+---
+
+## Capacity
+
+Controls the maximum burst.
+
+Example:
+
+```text
+capacity = 20
+```
+
+means the bucket can hold at most 20 tokens.
+
+Therefore:
+
+```text
+Rate = 100/minute
+Burst = 20
+```
+
+means:
+
+> The user can make up to 20 requests immediately when the bucket is full, while the long-term rate remains approximately 100 requests/minute.
+
+---
+
+# 11. Why Do We Need Capacity Separately?
+
+Suppose:
+
+```text
+Rate = 100/minute
+Capacity = 20
+```
+
+User doesn't make requests for:
+
+```text
+30 minutes
+```
+
+We don't accumulate:
+
+```text
+3000 tokens
+```
+
+We cap at:
+
+```text
+20
+```
+
+Therefore when the user suddenly returns:
+
+```text
+20 requests
+```
+
+can be served immediately.
+
+After that:
+
+```text
+tokens refill at 100/minute
+```
+
+This is how Token Bucket supports **controlled bursts**.
+
+---
+
+# 12. Token Bucket Algorithm
+
+```text
+Request
+   |
+   v
+Read bucket
+   |
+   v
+Calculate elapsed time
+   |
+   v
+Calculate refill
+   |
+   v
+tokens = min(capacity, tokens + refill)
+   |
+   v
+tokens > 0 ?
+   /       \
+ YES       NO
+  |         |
+  v         v
+consume    reject
+  |
+  v
+ALLOW
+```
+
+Refill:
+
+```text
+newTokens = elapsed × refillRate
+```
+
+Then:
+
+```text
+tokens = min(capacity, tokens + newTokens)
+```
+
+---
+
+# 13. Lazy Refill
+
+We don't need a background thread continuously adding tokens.
+
+Suppose:
+
+```text
+Last request = 12:00
+Next request = 12:20
+```
+
+When the next request arrives:
+
+```text
+elapsed = 20 minutes
+```
+
+We calculate how many tokens should have been generated.
+
+This is called **lazy refill**.
+
+It avoids unnecessary background work.
+
+---
+
+# 14. Token Bucket Data Model
+
+One bucket:
+
+```python
+class TokenBucket:
+    tokens
+    capacity
+    refill_rate
+    last_refill_time
+```
+
+Notice there is no `user_id`.
+
+Why?
+
+Because the bucket is the **algorithm state**, not the identity.
+
+We maintain:
+
+```text
+Map<UserId, TokenBucket>
+```
+
+Example:
+
+```text
+user1 → TokenBucket
+user2 → TokenBucket
+user3 → TokenBucket
+```
+
+In distributed implementation:
+
+```text
+user1 → Redis state
+user2 → Redis state
+```
+
+---
+
+# 15. Leaky Bucket
+
+Leaky Bucket is commonly encountered in two related forms.
+
+## Meter / Policer
+
+It makes an immediate allow/reject decision based on whether traffic conforms to a configured rate.
+
+Conceptually:
+
+```text
+Request
+   ↓
+Leaky Meter
+   ↓
+Allow / Reject
+```
+
+The bucket leaks at a constant rate.
+
+If incoming traffic exceeds what the bucket can accommodate:
+
+```text
+Reject
+```
+
+---
+
+## Queue / Shaper
+
+The other form actually buffers requests.
+
+```text
+Request
+   ↓
+┌─────────────┐
+│ FIFO Queue  │
+│             │
+│ R1          │
+│ R2          │
+│ R3          │
+└──────┬──────┘
+       │
+   fixed rate
+       │
+       ▼
+    Backend
+```
+
+The queue has finite capacity.
+
+If full:
+
+```text
+Reject
+```
+
+---
+
+# 16. Token Bucket vs Leaky Bucket
+
+This distinction is important.
+
+```text
+TOKEN BUCKET
+
+time → ADDS tokens
+request → SPENDS token
+
+empty → reject
+
+controlled burst
+```
+
+Versus:
+
+```text
+LEAKY BUCKET
+
+time → REMOVES water
+request → ADDS water
+
+full → reject
+
+smooth output
+```
+
+Mental model:
+
+> **Token Bucket:** "I saved permission, so I can burst."
+
+> **Leaky Bucket:** "Traffic must leave at a controlled rate."
+
+---
+
+# 17. Queue-Based Leaky Bucket and Workers
+
+A queue-based implementation might be:
+
+```text
+Incoming Requests
+       ↓
+     Queue
+       ↓
+    Worker
+       ↓
+   Backend
+```
+
+The queue must be **bounded**.
+
+Otherwise:
+
+```text
+Incoming = 1000/sec
+Processing = 100/sec
+```
+
+means the queue grows by:
+
+```text
+900/sec
+```
+
+eventually exhausting memory.
+
+---
+
+# 18. What If a Queued Request Times Out?
+
+Suppose:
+
+```text
+Client timeout = 2 sec
+```
+
+but the request waits:
+
+```text
+5 sec
+```
+
+in the queue.
+
+The client has already gone away.
+
+Therefore production queue systems may attach:
+
+```text
+createdAt
+deadline
+```
+
+to queued requests.
+
+Worker checks:
+
+```text
+currentTime > deadline
+```
+
+If expired:
+
+```text
+drop request
+```
+
+This prevents processing stale requests.
+
+---
+
+# 19. Does Leaky Bucket Need One Worker?
+
+No.
+
+One worker can become a bottleneck.
+
+Instead:
+
+```text
+             Queue
+               |
+       ┌───────┼───────┐
+       ▼       ▼       ▼
+    Worker1 Worker2 Worker3
+```
+
+For per-user ordering:
+
+```text
+hash(userId)
+      ↓
+partition
+      ↓
+worker
+```
+
+Many users can share workers.
+
+You don't create one worker per user.
+
+---
+
+# 20. When Should We Use Token Bucket vs Leaky Bucket?
+
+### Token Bucket
+
+Good when:
+
+> We want a fast allow/reject decision and controlled bursts.
+
+Typical:
+
+```text
+API Gateway
+```
+
+### Leaky Bucket / Queue Shaping
+
+Good when:
+
+> We want to smooth traffic and process it at a controlled rate.
+
+Typical:
+
+```text
+Email
+SMS
+Background jobs
+External provider with fixed throughput
+```
+
+---
+
+# 21. LLD — What Are We Actually Designing?
+
+Our LLD starts with a simple API:
+
+```java
+RateLimitDecision allow(String key)
+```
+
+The caller doesn't need to know:
+
+* Token Bucket
+* Sliding Window
+* Fixed Window
+* Factory
+* Configuration
+* Internal state
+
+This is the **Facade**.
+
+---
+
+# 22. LLD Class Structure
+
+Core classes:
+
+```text
+RateLimiter
+RateLimitStrategy
+RateLimitAlgoFactory
+RateLimitConfig
+RateLimitDecision
+Clock
+```
+
+Concrete strategies:
+
+```text
+FixedWindow
+SlidingWindowLog
+SlidingWindowCounter
+TokenBucket
+LeakyBucket
+```
+
+---
+
+# 23. Strategy Pattern
+
+Common interface:
+
+```java
+interface RateLimitStrategy {
+    RateLimitDecision tryAcquire(Instant now);
+}
+```
+
+Concrete implementations:
+
+```text
+FixedWindow
+SlidingWindowLog
+SlidingWindowCounter
+TokenBucket
+LeakyBucket
+```
+
+The facade doesn't care which algorithm is used.
+
+```text
+RateLimiter
+      |
+      v
+RateLimitStrategy
+      |
+ ┌────┼────┬────┬────┐
+ ↓    ↓    ↓    ↓    ↓
+FW   SL   SC   TB   LB
+```
+
+This is the **Strategy Pattern**.
+
+---
+
+# 24. Why Strategy?
+
+Without Strategy:
+
+```text
+if type == TOKEN_BUCKET:
+   ...
+elif type == FIXED_WINDOW:
+   ...
+elif type == LEAKY_BUCKET:
+   ...
+```
+
+would eventually make the facade huge.
+
+With Strategy:
+
+```text
+strategy.tryAcquire(now)
+```
+
+Each algorithm owns its own logic.
+
+---
+
+# 25. Factory Pattern
+
+We need to create the correct strategy.
+
+```java
+RateLimitAlgoFactory.create(config, clock)
+```
+
+Example:
+
+```text
+TOKEN_BUCKET
+      ↓
+TokenBucket
+
+FIXED_WINDOW
+      ↓
+FixedWindow
+```
+
+The factory uses:
+
+```text
+AlgoType enum
+```
+
+rather than magic strings such as:
+
+```text
+"tb"
+"fw"
+"sl"
+```
+
+---
+
+# 26. Why Not Singleton Factory?
+
+Our factory is stateless.
+
+It simply creates objects.
+
+Therefore:
+
+```text
+RateLimitAlgoFactory
+```
+
+does not need to be a Singleton.
+
+A Singleton would make testing harder and unnecessarily constrain object creation.
+
+We use dependency injection instead.
+
+---
+
+# 27. Clock Dependency Injection
+
+Don't use:
+
+```java
+LocalTime.now()
+```
+
+inside algorithms.
+
+Instead:
+
+```java
+interface Clock {
+    Instant now();
+}
+```
+
+Implement:
+
+```text
+SystemClock
+FakeClock
+```
+
+Production:
+
+```text
+SystemClock
+```
+
+Tests:
+
+```text
+FakeClock
+```
+
+---
+
+# 28. Why Instant?
+
+`LocalTime` contains only:
+
+```text
+03:30 PM
+```
+
+It doesn't contain a date.
+
+Time-based algorithms need elapsed time across boundaries.
+
+Use:
+
+```text
+Instant
+```
+
+so tests can simply do:
+
+```text
+clock.advanceMinutes(1)
+```
+
+instead of:
+
+```text
+Thread.sleep(...)
+```
+
+---
+
+# 29. RateLimitDecision
+
+Don't return only:
+
+```text
+boolean
+```
+
+Return:
+
+```java
+RateLimitDecision {
+    allowed
+    remaining
+    retryAt
+}
+```
+
+Why?
+
+The caller may need:
+
+```text
+HTTP 429
+Retry-After
+X-RateLimit-Remaining
+```
+
+`retryAt` represents **when** the request can be retried.
+
+---
+
+# 30. Facade
+
+The main API:
+
+```java
+public RateLimitDecision allow(String key)
+```
+
+Internally:
+
+```text
+allow(key)
+   |
+   +--> configOf(key)
+   |
+   +--> Factory.create(...)
+   |
+   +--> strategy.tryAcquire(clock.now())
+   |
+   +--> return decision
+```
+
+The caller only sees:
+
+```text
+allow(key)
+```
+
+---
+
+# 31. One Algorithm Per Key
+
+The facade maintains:
+
+```java
+Map<String, RateLimitStrategy> byKey
+```
+
+Conceptually:
+
+```text
+user1 → TokenBucket
+user2 → TokenBucket
+user3 → FixedWindow
+```
+
+depending on configuration.
+
+---
+
+# 32. computeIfAbsent
+
+Instead of:
+
+```java
+if (!map.containsKey(key)) {
+    map.put(key, create(...));
+}
+```
+
+use:
+
+```java
+map.computeIfAbsent(
+    key,
+    k -> create(...)
+);
+```
+
+This is important for concurrency.
+
+Two threads making the first requests for the same key should not accidentally create two independent algorithm instances.
+
+Otherwise the user could effectively receive:
+
+```text
+Double quota
+```
+
+---
+
+# 33. Concurrency in LLD
+
+There are two separate concurrency concerns.
+
+### Problem 1 — Instance creation
+
+Who creates the strategy for a key?
+
+Use:
+
+```text
+computeIfAbsent
+```
+
+### Problem 2 — Algorithm state
+
+Two threads may simultaneously modify:
+
+```text
+tokens
+lastRefill
+```
+
+Therefore the strategy's critical section must be protected appropriately.
+
+For the Java implementation we discussed:
+
+```text
+synchronized tryAcquire()
+```
+
+serializes operations on the same strategy instance.
+
+---
+
+# 34. Important LLD Lessons
+
+### Don't start with Redis
+
+First build:
+
+```text
+correct in-memory design
+```
+
+Then distribute it.
+
+This makes the design easier to reason about.
+
+---
+
+### Algorithms take numbers
+
+Token Bucket should know:
+
+```text
+capacity
+refillRate
+```
+
+not:
+
+```text
+Gold
+Admin
+CTO
+```
+
+---
+
+# 35. Configuration vs Business Tier
+
+Business rules belong outside the algorithm.
+
+For example:
+
+```text
+Gold
+→ 1000/min
+```
+
+The algorithm receives:
+
+```text
+limit = 1000
+window = 60 sec
+```
+
+not:
+
+```text
+tier = GOLD
+```
+
+So:
+
+```text
+configOf(key)
+```
+
+determines the policy.
+
+The algorithm executes the policy.
+
+This separation makes the LLD cleaner.
+
+---
+
+# 36. Fixed Window Time Alignment
+
+Sliding/weighted algorithms need correctly aligned windows.
+
+Suppose:
+
+```text
+12:01:30
+```
+
+belongs to:
+
+```text
+[12:01:00, 12:02:00)
+```
+
+Don't simply set:
+
+```text
+currentStart = requestTime
+```
+
+during rollover.
+
+Instead snap to the correct window boundary.
+
+Conceptually:
+
+```text
+currentStart += window × windowsPassed
+```
+
+This keeps previous/current window calculations consistent.
+
+---
+
+# 37. Remainder Problem
+
+Suppose Token Bucket calculates:
+
+```text
+elapsed / timePerToken
+```
+
+using integer division.
+
+There may be leftover time.
+
+If we simply do:
+
+```text
+lastRefill = requestTime
+```
+
+we lose that remainder.
+
+Repeatedly doing this can make the limiter refill slower than intended.
+
+Instead:
+
+```text
+lastRefill += producedTokens × nanosPerToken
+```
+
+The unused remainder is preserved.
+
+This is a subtle but important correctness issue.
+
+---
+
+# 38. LLD UML
+
+Our design:
+
+```text
+                       Clock
+                         |
+                         v
+                  +--------------+
+                  | RateLimiter  |
+                  |--------------|
+                  | byKey        |
+                  | clock        |
+                  | configOf     |
+                  +------+-------+
+                         |
+                         v
+                 RateLimitStrategy
+                         ^
+              ┌──────────┼───────────┐
+              |          |           |
+          Fixed       Token        Leaky
+          Window      Bucket       Bucket
+```
+
+Factory:
+
+```text
+RateLimitAlgoFactory
+        |
+        +---- creates ----> Strategy
+```
+
+Configuration:
+
+```text
+RateLimiter
+     |
+     +---- configOf(key)
+```
+
+Decision:
+
+```text
+Strategy
+   ↓
+RateLimitDecision
+```
+
+---
+
+# 39. Complete LLD Request Path
+
+```text
+Client
+   |
+   v
+RateLimiter.allow(key)
+   |
+   v
+configOf(key)
+   |
+   v
+RateLimitConfig
+   |
+   v
+Factory.create(...)
+   |
+   v
+RateLimitStrategy
+   |
+   v
+tryAcquire(clock.now())
+   |
+   v
+RateLimitDecision
+```
+
+This is the core LLD.
+
+---
+
+# 40. Why LLD Comes Before HLD
+
+Our implementation journey should be:
+
+```text
+Correct Algorithm
+       ↓
+Correct Object Design
+       ↓
+Concurrency
+       ↓
+Multiple Instances
+       ↓
+Shared State
+       ↓
+Distributed System
+```
+
+If we jump directly to Redis:
+
+```text
+Redis
+Lua
+Cluster
+Kafka
+```
+
+without understanding the local algorithm, it's easy to lose sight of the actual problem.
+
+---
+
+# 41. Why In-Memory Design Fails at Scale
+
+Suppose:
+
+```text
+Gateway 1
+```
+
+has:
+
+```text
+User A → 5 tokens
+```
+
+and:
+
+```text
+Gateway 2
+```
+
+has:
+
+```text
+User A → 5 tokens
+```
+
+Now the global system thinks User A has:
+
+```text
+10 tokens
+```
+
+instead of:
+
+```text
+5
+```
+
+This is the fundamental distributed-state problem.
+
+---
+
+# 42. Distributed Architecture
+
+We introduce Redis:
+
+```text
+                    Client
+                       |
+                       v
+                 Load Balancer
+                       |
+             ┌─────────┴─────────┐
+             v                   v
+        API Gateway 1       API Gateway 2
+             |                   |
+             └─────────┬─────────┘
+                       v
+                     Redis
+                       |
+                       v
+                  Microservice
+```
+
+Now all gateways share the same bucket state.
+
+---
+
+# 43. Why Redis?
+
+Rate limiting is on the hot path.
+
+We want:
+
+```text
+Very low latency
+High throughput
+Shared state
+Atomic operations
+```
+
+Redis provides:
+
+* In-memory storage
+* High throughput
+* Low latency
+* Atomic commands
+* Lua scripting
+* TTL
+* Clustering
+* Replication
+
+---
+
+# 44. Redis Race Condition
+
+Suppose:
+
+```text
+tokens = 1
+```
+
+Two gateways:
+
+```text
+Gateway1 → GET → 1
+Gateway2 → GET → 1
+```
+
+Both decide:
+
+```text
+ALLOW
+```
+
+Both update:
+
+```text
+tokens = 0
+```
+
+Two requests consumed one token.
+
+This is the classic:
+
+```text
+READ
+  ↓
+CHECK
+  ↓
+MODIFY
+  ↓
+WRITE
+```
+
+race.
+
+---
+
+# 45. Why MULTI/EXEC Doesn't Solve the Whole Problem
+
+Redis:
+
+```redis
+MULTI
+GET token
+...
+EXEC
+```
+
+queues commands until `EXEC`.
+
+The client cannot do:
+
+```text
+GET token
+if token > 0:
+    SET token
+```
+
+inside the transaction because it doesn't receive the `GET` result before `EXEC`.
+
+`MULTI/EXEC` gives atomic sequential execution of the queued commands, but it isn't a normal SQL transaction with arbitrary client-side branching and rollback semantics.
+
+`WATCH` provides optimistic concurrency, but high contention can lead to retries.
+
+---
+
+# 46. Lua Script
+
+Instead, execute the whole decision inside Redis:
+
+```text
+GET state
+   ↓
+calculate refill
+   ↓
+check tokens
+   ↓
+consume
+   ↓
+SET state
+   ↓
+return decision
+```
+
+as one Lua script.
+
+Architecture:
+
+```text
+Gateway
+   |
+   v
+EVALSHA
+   |
+   v
+Redis
+   |
+   +-- read
+   +-- calculate
+   +-- update
+   +-- return
+```
+
+Redis executes the script atomically with respect to other commands.
+
+This eliminates the race between separate GET/SET operations.
+
+---
+
+# 47. Redis Cluster
+
+Eventually:
+
+```text
+One Redis
+```
+
+may become a bottleneck.
+
+We horizontally scale:
+
+```text
+Redis Cluster
+
+Redis1
+Redis2
+Redis3
+```
+
+Different keys are distributed across nodes.
+
+---
+
+# 48. Hashing Problem
+
+Naive:
+
+```text
+hash(userId) % N
+```
+
+works initially.
+
+But if:
+
+```text
+N = 2
+```
+
+becomes:
+
+```text
+N = 3
+```
+
+many keys move.
+
+That's the **rehashing problem**.
+
+---
+
+# 49. Consistent Hashing
+
+Consistent hashing puts nodes on a hash ring.
+
+```text
+              Redis1
+                |
+        -----------------
+       /                 \
+   Redis3               Redis2
+```
+
+Keys are hashed onto the ring and assigned to the next node.
+
+When a node is added, only part of the key space moves.
+
+---
+
+# 50. Virtual Nodes
+
+One physical node can have multiple positions on the ring.
+
+```text
+Redis1-A
+Redis1-B
+Redis1-C
+```
+
+This improves distribution and reduces uneven load.
+
+---
+
+# 51. Redis Cluster Slots
+
+Redis Cluster uses:
+
+```text
+16384 hash slots
+```
+
+Conceptually:
+
+```text
+user123
+   |
+ CRC16
+   |
+ slot 5310
+   |
+ Redis Node
+```
+
+Nodes own ranges of slots.
+
+Adding/removing nodes involves moving slots rather than rehashing every key from scratch.
+
+---
+
+# 52. Redis Replication
+
+For availability:
+
+```text
+Master
+ ├── Replica
+ └── Replica
+```
+
+Master handles writes.
+
+Replicas copy state.
+
+Replication is generally asynchronous.
+
+Therefore a small amount of replication lag is possible.
+
+---
+
+# 53. Redis Failure
+
+What happens if Redis fails?
+
+Two major choices.
+
+## Fail Open
+
+```text
+Redis unavailable
+      ↓
+Skip limiter
+      ↓
+Allow request
+```
+
+Useful when availability is more important than strict enforcement.
+
+---
+
+## Fail Closed
+
+```text
+Redis unavailable
+      ↓
+Reject request
+```
+
+Useful when uncontrolled traffic is dangerous.
+
+---
+
+# 54. Business-Specific Failure Policy
+
+There is no universal answer.
+
+Example:
+
+```text
+Login
+→ stricter protection
+
+Search
+→ availability may matter more
+
+Payment
+→ conservative behavior
+```
+
+We can also use a **local fallback limiter**:
+
+```text
+Gateway
+ ├── Local limiter
+ └── Redis limiter
+```
+
+If Redis temporarily fails:
+
+```text
+Redis unavailable
+       ↓
+Local fallback
+```
+
+Trade-off:
+
+```text
+Availability ↑
+Global accuracy ↓
+```
+
+---
+
+# 55. Dynamic Rate-Limit Configuration
+
+We don't want:
+
+```python
+limit = 100
+```
+
+hardcoded in application code.
+
+Instead:
+
+```text
+Admin Dashboard
+       ↓
+Config Service
+       ↓
+API Gateways
+```
+
+Example:
+
+```text
+Free       → 100/min
+Premium    → 1000/min
+Enterprise → 10000/min
+```
+
+---
+
+# 56. Pull-Based Configuration
+
+Gateway periodically asks:
+
+```text
+"Has configuration changed?"
+```
+
+Example:
+
+```text
+every 30 seconds
+```
+
+Flow:
+
+```text
+Gateway
+   ↓
+Config Service
+   ↓
+version?
+```
+
+If same:
+
+```text
+No change
+```
+
+If different:
+
+```text
+Download new configuration
+```
+
+### Advantage
+
+Simple.
+
+### Disadvantage
+
+Propagation delay.
+
+---
+
+# 57. Push-Based Configuration
+
+Config Service publishes an update:
+
+```text
+Admin
+ ↓
+Config Service
+ ↓
+Kafka / PubSub / gRPC
+ ↓
+Gateways
+```
+
+Example:
+
+```text
+100/min
+   ↓
+Admin changes
+   ↓
+200/min
+   ↓
+Publish update
+   ↓
+Gateways update local cache
+```
+
+### Advantage
+
+Fast propagation.
+
+### Disadvantage
+
+More infrastructure and failure cases.
+
+---
+
+# 58. Best Practical Configuration Model
+
+Use both:
+
+```text
+Push = fast update
+Pull = safety mechanism
+```
+
+Normal path:
+
+```text
+Config changed
+    ↓
+Push
+    ↓
+Gateway
+```
+
+Recovery path:
+
+```text
+Gateway missed event
+    ↓
+Periodic poll
+    ↓
+Gets latest version
+```
+
+This provides fast propagation plus eventual recovery.
+
+---
+
+# 59. Configuration Versioning
+
+Don't just send:
+
+```text
+limit = 200
+```
+
+Use:
+
+```text
+version = 18
+limit = 200
+```
+
+Gateway has:
+
+```text
+version = 17
+```
+
+Config Service:
+
+```text
+latest = 18
+```
+
+Gateway updates.
+
+Versioning helps handle:
+
+* Out-of-order events
+* Missed events
+* Duplicate events
+* Stale configuration
+
+---
+
+# 60. Multiple Rate-Limiting Dimensions
+
+We can rate-limit based on:
+
+```text
+User
+IP
+API Key
+Tenant
+Endpoint
+Region
+```
+
+Example:
+
+```text
+User     → 100/min
+IP       → 500/min
+Tenant   → 50,000/min
+```
+
+A request may need to satisfy multiple policies.
+
+```text
+User limiter
+      ↓
+IP limiter
+      ↓
+Tenant limiter
+      ↓
+ALLOW
+```
+
+If any required limit fails:
+
+```text
+429
+```
+
+---
+
+# 61. Per-API Limits
+
+Different APIs can have different limits.
+
+```text
+GET /products
+500/min
+
+POST /payment
+5/min
+
+POST /login
+10/min
+```
+
+Redis keys may include:
+
+```text
+user + API
+```
+
+Example:
+
+```text
+rate:user123:/payment
+```
+
+---
+
+# 62. Observability
+
+A production rate limiter must be observable.
+
+Important metrics:
+
+```text
+rate_limit_allowed
+rate_limit_rejected
+redis_latency
+lua_execution_time
+redis_errors
+fallback_used
+config_version
+```
+
+---
+
+# 63. Logging
+
+Use structured logging.
+
+Example:
+
+```json
+{
+  "user_id": "123",
+  "endpoint": "/payment",
+  "allowed": false,
+  "remaining": 0,
+  "limit": 10,
+  "region": "ap-south-1"
+}
+```
+
+Logs should help answer:
+
+* Who was limited?
+* Which endpoint?
+* Which policy?
+* Why rejected?
+* Which region?
+* Was Redis available?
+* Was fallback used?
+
+---
+
+# 64. Monitoring
+
+Typical stack:
+
+```text
+Gateway
+   ↓
+Prometheus
+   ↓
+Grafana
+```
+
+Monitor:
+
+```text
+Requests/sec
+Allowed/sec
+Rejected/sec
+Redis latency
+P99 latency
+Redis errors
+Fallback rate
+```
+
+---
+
+# 65. Alerts
+
+Alert on:
+
+```text
+Redis latency ↑
+Redis errors ↑
+429 rate ↑
+Fallback usage ↑
+Lua execution time ↑
+Gateway errors ↑
+```
+
+A sudden increase can indicate:
+
+* Traffic spike
+* Abuse
+* Redis failure
+* Bad deployment
+* Incorrect configuration
+
+---
+
+# 66. Multi-Level Rate Limiting
+
+At very high scale, contacting Redis for every request can itself become expensive.
+
+We can use:
+
+```text
+Gateway
+   |
+   +--> Local limiter
+   |
+   +--> Redis global limiter
+```
+
+For example:
+
+```text
+Gateway requests 20 tokens from Redis.
+```
+
+Redis deducts:
+
+```text
+20
+```
+
+Gateway can then process 20 requests locally.
+
+After local tokens are exhausted:
+
+```text
+Gateway → Redis
+```
+
+again.
+
+This dramatically reduces Redis calls.
+
+---
+
+# 67. Trade-Off of Token Batching
+
+Benefit:
+
+```text
+Redis traffic ↓
+Latency ↓
+```
+
+Cost:
+
+```text
+Global precision ↓
+```
+
+Different gateways may temporarily hold token allocations.
+
+Therefore batching size is a tuning parameter.
+
+---
+
+# 68. Multi-Region Rate Limiting
+
+Suppose we have:
+
+```text
+India
+US
+Europe
+```
+
+with separate gateways.
+
+If every request goes to one global Redis:
+
+```text
+India Gateway
+      |
+      v
+US Redis
+```
+
+latency increases.
+
+Therefore a common approach is:
+
+```text
+India Gateway → India Redis
+US Gateway    → US Redis
+EU Gateway    → EU Redis
+```
+
+This gives low regional latency.
+
+But now we have a consistency problem:
+
+```text
+User123
+```
+
+could potentially make requests through multiple regions.
+
+Therefore multi-region rate limiting requires deciding between:
+
+* Strict global limits
+* Regional limits
+* Eventual consistency
+* Centralized/global coordination
+* Token allocation between regions
+
+This is an advanced HLD trade-off.
+
+---
+
+# 69. Complete Production Architecture
+
+```text
+                         Internet
+                            |
+                            v
+                  Global Load Balancer
+                            |
+             +--------------+--------------+
+             |              |              |
+             v              v              v
+          Region A       Region B       Region C
+             |              |              |
+             v              v              v
+        API Gateway     API Gateway     API Gateway
+             |              |              |
+        Local Cache     Local Cache     Local Cache
+             |              |              |
+             +--------------+--------------+
+                            |
+                     Regional Redis
+                            |
+                     Redis Cluster
+                  +---------+---------+
+                  |         |         |
+                R1        R2        R3
+                  |         |         |
+              Replicas   Replicas   Replicas
+                            |
+                            v
+                      Microservices
+```
+
+Configuration:
+
+```text
+Admin Dashboard
+      |
+      v
+Config Service
+      |
+      +---- Push ----> Gateways
+      |
+      +---- Pull <---- Gateways
+```
+
+Observability:
+
+```text
+Gateways
+   |
+   v
+Prometheus
+   |
+   v
+Grafana
+```
+
+---
+
+# 70. Complete Request Flow
+
+Suppose:
+
+```text
+POST /payment
+User = 123
+```
+
+### Step 1 — Global Routing
+
+```text
+Client
+ ↓
+DNS / Global Routing
+ ↓
+Region
+```
+
+### Step 2 — Gateway
+
+```text
+Load Balancer
+ ↓
+API Gateway
+```
+
+### Step 3 — Authentication
+
+```text
+Authenticate
+ ↓
+user_id = 123
+```
+
+### Step 4 — Configuration
+
+Gateway knows:
+
+```text
+/payment
+Premium
+
+Rate = 100/min
+Burst = 20
+```
+
+### Step 5 — Local Limiter
+
+Check local state.
+
+If rejected:
+
+```text
+429
+```
+
+Otherwise continue.
+
+### Step 6 — Redis
+
+Lua performs:
+
+```text
+Read
+ ↓
+Refill
+ ↓
+Check
+ ↓
+Consume
+ ↓
+Save
+ ↓
+Return
+```
+
+### Step 7 — Microservice
+
+```text
+Gateway
+ ↓
+Payment Service
+```
+
+### Step 8 — Metrics
+
+```text
+Allowed
+ ↓
+Prometheus
+```
+
+---
+
+# 71. Production Request Path
+
+The complete conceptual flow:
+
+```text
+                         CLIENT
+                           |
+                           v
+                  GLOBAL LOAD BALANCER
+                           |
+                           v
+                     API GATEWAY
+                           |
+              +------------+------------+
+              |                         |
+              v                         v
+       Config Cache              Local Limiter
+              |                         |
+              +------------+------------+
+                           |
+                           v
+                    Redis Cluster
+                           |
+                     Lua Script
+                           |
+                           v
+                    Rate Decision
+                     /         \
+                   Allow       Reject
+                     |            |
+                     v            v
+               Microservice     HTTP 429
+```
+
+---
+
+# 72. LLD vs HLD
+
+## LLD asks:
+
+> How do I structure the code?
+
+Examples:
+
+```text
+Strategy
+Factory
+Facade
+Clock
+RateLimitConfig
+RateLimitDecision
+```
+
+---
+
+## HLD asks:
+
+> How does this work across thousands of servers?
+
+Examples:
+
+```text
+Load Balancer
+API Gateway
+Redis
+Redis Cluster
+Replication
+Config Service
+Monitoring
+Multi-region
+```
+
+---
+
+# 73. How the Design Evolves
+
+This is perhaps the most important part of the entire topic.
+
+We didn't start with a giant distributed architecture.
+
+We evolved it:
+
+```text
+                 Rate Limiter
+                      |
+                      v
+             Single Algorithm
+                      |
+                      v
+                    LLD
+                      |
+                      v
+             In-Memory Map
+                      |
+                      v
+             Multiple Gateways
+                      |
+                      v
+              Shared Redis
+                      |
+                      v
+             Race Conditions
+                      |
+                      v
+                 Lua Script
+                      |
+                      v
+               Redis Cluster
+                      |
+                      v
+            Replication/Failover
+                      |
+                      v
+           Dynamic Configuration
+                      |
+                      v
+             Observability
+                      |
+                      v
+             Multi-Region
+```
+
+This is exactly the way to approach a system-design interview.
+
+---
+
+# 74. Common Mistakes We Identified
+
+## Mistake 1 — Starting with Redis
+
+Wrong learning path:
+
+```text
+Redis
+Lua
+Cluster
+```
+
+without understanding the algorithm.
+
+Better:
+
+```text
+Algorithm
+→ LLD
+→ concurrency
+→ distributed state
+→ Redis
+```
+
+---
+
+## Mistake 2 — Using `LocalTime`
+
+Use:
+
+```text
+Instant
+```
+
+with:
+
+```text
+Clock
+```
+
+injected through DI.
+
+---
+
+## Mistake 3 — Losing Refill Remainder
+
+Don't blindly do:
+
+```text
+lastRefill = now
+```
+
+Preserve unused time.
+
+---
+
+## Mistake 4 — Putting Business Tiers Inside Algorithms
+
+Don't make TokenBucket understand:
+
+```text
+Gold
+Admin
+Enterprise
+```
+
+Keep policy in:
+
+```text
+configOf(key)
+```
+
+---
+
+## Mistake 5 — Returning Only Boolean
+
+Use:
+
+```text
+RateLimitDecision
+```
+
+with:
+
+```text
+allowed
+remaining
+retryAt
+```
+
+---
+
+## Mistake 6 — Singleton Everywhere
+
+A stateless factory doesn't need Singleton.
+
+Use dependency injection.
+
+---
+
+## Mistake 7 — Assuming MULTI/EXEC Solves Arbitrary Logic
+
+It doesn't allow client-side branching between queued commands.
+
+Lua is a better fit for atomic read-modify-write logic.
+
+---
+
+## Mistake 8 — One Worker Per User
+
+Impossible at large scale.
+
+Use:
+
+```text
+partitioning
++
+multiple workers
+```
+
+---
+
+## Mistake 9 — Unlimited Queue
+
+Queues must be bounded.
+
+Otherwise:
+
+```text
+Memory → exhaustion
+```
+
+---
+
+# 75. Interview Cheat Sheet
+
+### Why Token Bucket?
+
+> Controlled bursts + long-term rate enforcement.
+
+### Why Sliding Log?
+
+> Exact recent request history, but memory-heavy.
+
+### Why Sliding Counter?
+
+> O(1) memory approximation of a sliding window.
+
+### Why Fixed Window?
+
+> Simple and cheap, but boundary bursts.
+
+### Why Leaky Bucket?
+
+> Traffic shaping/policing with controlled output behavior.
+
+### Why Redis?
+
+> Fast shared state.
+
+### Why Lua?
+
+> Atomic read-modify-write.
+
+### Why Redis Cluster?
+
+> Horizontal scaling.
+
+### Why replication?
+
+> Availability and failover.
+
+### What if Redis fails?
+
+> Business-dependent fail-open/fail-closed/local fallback.
+
+### How do we change limits dynamically?
+
+> Config Service + local gateway cache + push/pull propagation.
+
+### Why `Instant`?
+
+> Correct elapsed-time calculations.
+
+### Why `computeIfAbsent`?
+
+> Avoid duplicate strategy instances under concurrent initialization.
+
+### Why Strategy?
+
+> Swap algorithms without changing caller/facade.
+
+### Why Factory?
+
+> Centralize algorithm creation.
+
+### Why Facade?
+
+> Give callers one simple API: `allow(key)`.
+
+---
+
+# 76. Final Mental Model
+
+If you remember only this:
+
+```text
+                  RATE LIMITER
+                       |
+          +------------+------------+
+          |                         |
+      ALLOW/REJECT             TRAFFIC SHAPING
+          |                         |
+    Token Bucket              Leaky Bucket
+          |
+          v
+        LLD
+          |
+   Strategy + Factory
+   + Facade + DI
+          |
+          v
+   Multiple Gateways
+          |
+          v
+      Shared Redis
+          |
+          v
+      Race Condition
+          |
+          v
+        Lua
+          |
+          v
+    Redis Cluster
+          |
+          v
+ Replication + Failover
+          |
+          v
+ Dynamic Configuration
+          |
+          v
+   Observability
+          |
+          v
+    Multi-Region
+```
+
+And remember the two most important Token Bucket concepts:
+
+```text
+REFILL RATE
+    ↓
+Long-term throughput
+```
+
+```text
+CAPACITY
+    ↓
+Maximum burst
+```
+
+So:
+
+> **Rate answers: "How quickly can I recover?"**
+
+> **Capacity answers: "How much can I burst right now?"**
+
+---
+
+# 77. Our Hands-On Implementation Plan
+
+We'll now implement everything progressively using:
+
+```text
+Python
+FastAPI
+Podman
+Redis
+Redis Cluster
+Lua
+Locust
+Prometheus
+Grafana
+pytest
+```
+
+### Phase 0
+
+Project setup.
+
+### Phase 1
+
+Single-process Token Bucket.
+
+### Phase 2
+
+Concurrency and race conditions.
+
+### Phase 3
+
+Multiple FastAPI instances behind Nginx.
+
+### Phase 4
+
+Redis shared state.
+
+### Phase 5
+
+Redis Lua atomic Token Bucket.
+
+### Phase 6
+
+Redis Cluster.
+
+### Phase 7
+
+Dynamic configuration — Pull + Push.
+
+### Phase 8
+
+Failure handling — fail-open, fail-closed, fallback.
+
+### Phase 9
+
+Structured logging + Prometheus + Grafana.
+
+### Phase 10
+
+Chaos testing.
+
+### Phase 11
+
+Load testing and benchmarking.
+
+### Phase 12
+
+Final SDE-2 system-design interview simulation.
+
+---
+
+## Final takeaway
+
+The most valuable lesson from this entire topic isn't actually **"how to implement Token Bucket."**
+
+It's understanding the **evolution of the design**:
+
+```text
+Correct algorithm
+      ↓
+Clean LLD
+      ↓
+Thread safety
+      ↓
+Distributed state
+      ↓
+Atomicity
+      ↓
+Horizontal scaling
+      ↓
+High availability
+      ↓
+Dynamic configuration
+      ↓
+Observability
+      ↓
+Failure handling
+```
+</script>
+
+  <script src="./rate-limiter-strategies.js"></script>
+  <script src="./notes-renderer.js"></script>
+  <script src="./rate-limiter-playground.js"></script>
+</body>
+</html>

@@ -1,11 +1,13 @@
-# Publish rateLimiter/doc (playground + HLD/LLD) to GitHub Pages.
+# Publish rateLimiter/ (web_content playground + docs HLD/LLD) to GitHub Pages.
 name: Rate limiter docs (GitHub Pages)
 
 on:
   push:
     branches: [main]
     paths:
-      - 'rateLimiter/doc/**'
+      - 'rateLimiter/index.html'
+      - 'rateLimiter/web_content/**'
+      - 'rateLimiter/docs/**'
       - '.github/workflows/rate-limiter-pages.yml'
   workflow_dispatch:
 
@@ -30,7 +32,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: rateLimiter/doc
+          path: rateLimiter
 
       - name: Deploy to GitHub Pages
         id: deployment
